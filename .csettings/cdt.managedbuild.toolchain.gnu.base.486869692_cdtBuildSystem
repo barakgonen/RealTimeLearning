@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?fileVersion 5.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage2">
+    	
+    <storageModule moduleId="cdtBuildSystem" version="4.0.0">
+        		
+        <configuration artifactName="${ProjName}" buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.base.486869692" name="Default" optionalBuildProperties="org.eclipse.cdt.docker.launcher.containerbuild.property.selectedvolumes=,org.eclipse.cdt.docker.launcher.containerbuild.property.volumes=" parent="org.eclipse.cdt.build.core.emptycfg">
+            			
+            <folderInfo id="cdt.managedbuild.toolchain.gnu.base.486869692.1667915553" name="/" resourcePath="">
+                				
+                <toolChain id="cdt.managedbuild.toolchain.gnu.base.1897689542" name="Linux GCC" superClass="cdt.managedbuild.toolchain.gnu.base">
+                    					
+                    <targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.GNU_ELF" id="cdt.managedbuild.target.gnu.platform.base.15893459" name="Debug Platform" osList="linux,hpux,aix,qnx" superClass="cdt.managedbuild.target.gnu.platform.base"/>
+                    					
+                    <builder id="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder.914159048" incrementalBuildTarget="" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Autotools Makefile Generator" superClass="org.eclipse.linuxtools.cdt.autotools.core.toolchain.builder"/>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.archiver.base.995193395" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1073990017" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
+                        						
+                        <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1826360503" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+                        					
+                    </tool>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.c.compiler.base.1779848932" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.base">
+                        						
+                        <inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1378851709" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+                        					
+                    </tool>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.c.linker.base.1018968214" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.1724246985" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
+                        						
+                        <inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.166326912" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+                            							
+                            <additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+                            							
+                            <additionalInput kind="additionalinput" paths="$(LIBS)"/>
+                            						
+                        </inputType>
+                        					
+                    </tool>
+                    					
+                    <tool id="cdt.managedbuild.tool.gnu.assembler.base.482007979" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
+                        						
+                        <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1354307527" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+                        					
+                    </tool>
+                    				
+                </toolChain>
+                			
+            </folderInfo>
+            		
+        </configuration>
+        	
+    </storageModule>
+    
+</cproject>
