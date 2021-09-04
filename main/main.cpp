@@ -17,6 +17,7 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgcodecs.hpp"
 #include "opencv4/opencv2/imgproc.hpp"
+#include <memory>
 
 #include "../orb_slam/include/Map.h"
 #include "../orb_slam/include/MapDrawer.h"
@@ -70,6 +71,11 @@ int main(int argc, char **argv) {
 	mapDrawer.DrawMapPoints();
 
 	std::cout << "mapDrawer.mpMap->GetMaxKFid(): " << mapDrawer.mpMap->GetMaxKFid() << std::endl;
+
+	// CPP 14 stuff
+
+	auto lambda = [](auto x, auto y) {return x + y;};
+	std::cout << "How much is 2 + 3? " << lambda(2,3) << std::endl;
 	// tello SHIT
 //	asio::io_service io_service;
 //	  asio::io_service::work work(io_service);

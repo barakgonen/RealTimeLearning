@@ -1,1 +1,1 @@
-/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libcore.so -o libcore.so CMakeFiles/core.dir/Point.cpp.o 
+/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libcore.so -o ../lib/libcore.so CMakeFiles/core.dir/Point.cpp.o 
