@@ -56,6 +56,52 @@ CMAKE_BINARY_DIR = /local/RealTimeLearning
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -136,16 +182,76 @@ core/fast:
 	$(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/build
 .PHONY : core/fast
 
+#=============================================================================
+# Target rules for targets named ctello-stream
+
+# Build rule for target.
+ctello-stream: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ctello-stream
+.PHONY : ctello-stream
+
+# fast build rule for target.
+ctello-stream/fast:
+	$(MAKE) -f drone_lib/CMakeFiles/ctello-stream.dir/build.make drone_lib/CMakeFiles/ctello-stream.dir/build
+.PHONY : ctello-stream/fast
+
+#=============================================================================
+# Target rules for targets named ctello-state
+
+# Build rule for target.
+ctello-state: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ctello-state
+.PHONY : ctello-state
+
+# fast build rule for target.
+ctello-state/fast:
+	$(MAKE) -f drone_lib/CMakeFiles/ctello-state.dir/build.make drone_lib/CMakeFiles/ctello-state.dir/build
+.PHONY : ctello-state/fast
+
+#=============================================================================
+# Target rules for targets named ctello-command
+
+# Build rule for target.
+ctello-command: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 ctello-command
+.PHONY : ctello-command
+
+# fast build rule for target.
+ctello-command/fast:
+	$(MAKE) -f drone_lib/CMakeFiles/ctello-command.dir/build.make drone_lib/CMakeFiles/ctello-command.dir/build
+.PHONY : ctello-command/fast
+
+#=============================================================================
+# Target rules for targets named droneLib
+
+# Build rule for target.
+droneLib: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 droneLib
+.PHONY : droneLib
+
+# fast build rule for target.
+droneLib/fast:
+	$(MAKE) -f drone_lib/CMakeFiles/droneLib.dir/build.make drone_lib/CMakeFiles/droneLib.dir/build
+.PHONY : droneLib/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
 	@echo "... all (the default if no target is provided)"
 	@echo "... clean"
 	@echo "... depend"
+	@echo "... install/strip"
+	@echo "... install/local"
+	@echo "... install"
+	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... RealTimeLearningApp"
 	@echo "... core"
+	@echo "... ctello-stream"
+	@echo "... ctello-state"
+	@echo "... ctello-command"
+	@echo "... droneLib"
 .PHONY : help
 
 
