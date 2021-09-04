@@ -79,7 +79,7 @@ RealTimeLearningApp_EXTERNAL_OBJECTS =
 
 main/RealTimeLearningApp: main/CMakeFiles/RealTimeLearningApp.dir/main.cpp.o
 main/RealTimeLearningApp: main/CMakeFiles/RealTimeLearningApp.dir/build.make
-main/RealTimeLearningApp: core/libcore.so
+main/RealTimeLearningApp: lib/libcore.so
 main/RealTimeLearningApp: lib/liborb_slam.so
 main/RealTimeLearningApp: lib/libDBoW2.so
 main/RealTimeLearningApp: lib/libg2o.so

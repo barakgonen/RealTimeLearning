@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED 11)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED 14)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 
 project (RealTimeLearning)
 
@@ -14,7 +15,6 @@ target_sources(core PRIVATE
         			Point.h
         			Point.cpp
 )
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 target_include_directories(core
     PUBLIC
         $<INSTALL_INTERFACE:public>

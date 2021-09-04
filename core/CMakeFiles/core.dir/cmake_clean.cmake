@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
+  "../lib/libcore.pdb"
+  "../lib/libcore.so"
   "CMakeFiles/core.dir/Point.cpp.o"
-  "libcore.pdb"
-  "libcore.so"
 )
 
 # Per-language clean rules from dependency scanning.
