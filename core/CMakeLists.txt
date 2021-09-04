@@ -14,7 +14,7 @@ target_sources(core PRIVATE
         			Point.h
         			Point.cpp
 )
-
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 target_include_directories(core
     PUBLIC
         $<INSTALL_INTERFACE:public>
