@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/local/RealTimeLearning/core/Point.cpp
+Point.h
+/local/RealTimeLearning/core/Point.h
+iostream
+-
+
+/local/RealTimeLearning/core/Point.h
+
