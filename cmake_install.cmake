@@ -41,6 +41,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/local/RealTimeLearning/main/cmake_install.cmake")
   include("/local/RealTimeLearning/core/cmake_install.cmake")
+  include("/local/RealTimeLearning/drone_lib/cmake_install.cmake")
 
 endif()
 

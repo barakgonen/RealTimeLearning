@@ -7,4 +7,4 @@ project (RealTimeLearning)
 
 add_subdirectory(main)
 add_subdirectory(core)
-#add_subdirectory(drone_lib)
+add_subdirectory(drone_lib)

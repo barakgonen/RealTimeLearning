@@ -24,7 +24,7 @@ ${Pangolin_INCLUDE_DIRS}
 
 target_link_libraries(RealTimeLearningApp PUBLIC 
 core::core 
-#tello::tello
+droneLib::droneLib
 /local/RealTimeLearning/lib/liborb_slam.so
 /local/RealTimeLearning/lib/libDBoW2.so
 /local/RealTimeLearning/lib/libg2o.so

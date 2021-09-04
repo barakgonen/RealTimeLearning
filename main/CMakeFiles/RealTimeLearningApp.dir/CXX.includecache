@@ -80,7 +80,23 @@ vector
 
 /local/RealTimeLearning/core/Point.h
 
+/local/RealTimeLearning/drone_lib/include/ctello.h
+boost/optional/optional.hpp
+-
+sys/socket.h
+-
+sys/types.h
+-
+optional
+-
+vector
+-
+string
+-
+
 /local/RealTimeLearning/main/main.cpp
+boost/optional/optional.hpp
+-
 opencv2/core/mat.hpp
 -
 opencv2/core/types.hpp
@@ -115,6 +131,8 @@ opencv4/opencv2/imgproc.hpp
 /local/RealTimeLearning/main/opencv4/opencv2/imgproc.hpp
 memory
 -
+../drone_lib/include/ctello.h
+/local/RealTimeLearning/drone_lib/include/ctello.h
 ../orb_slam/include/Map.h
 /local/RealTimeLearning/orb_slam/include/Map.h
 ../orb_slam/include/MapDrawer.h
