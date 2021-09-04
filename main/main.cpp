@@ -64,7 +64,7 @@ int main(int argc, char **argv) {
 
 	// ORB_SLAM2 shit
 	Map map;
-	const std::string pattern = "sdsdsdsdd";
+	const std::string pattern = "ppppppp";
 	MapDrawer mapDrawer{&map, pattern};
 
 	mapDrawer.DrawMapPoints();
