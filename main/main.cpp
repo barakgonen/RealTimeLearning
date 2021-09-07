@@ -23,6 +23,8 @@
 #include "../drone_lib/include/ctello.h"
 #include "../orb_slam/include/Map.h"
 #include "../orb_slam/include/MapDrawer.h"
+
+#include "../Thirdparty/g2o/g2o/types/types_seven_dof_expmap.h"
 using ctello::Tello;
 //#include "../tello/inc/tello.hpp"
 using cv::CAP_FFMPEG;
@@ -48,6 +50,7 @@ using cv::resize;
 using cv::Size;
 using cv::Vec3b;
 using cv::VideoCapture;
+using g2o::VertexSim3Expmap;
 using ORB_SLAM2::Map;
 using ORB_SLAM2::MapDrawer;
 
@@ -201,7 +204,7 @@ int main(int argc, char **argv) {
 	};
 	std::cout << "How much is 2 + 3? " << lambda(2, 3) << std::endl;
 
-	// tello SHIT
+//	 tello SHIT
 	Tello tello { };
 	if (!tello.Bind()) {
 		return 0;
@@ -213,10 +216,10 @@ int main(int argc, char **argv) {
 
 	VideoCapture capture { TELLO_STREAM_URL, CAP_FFMPEG };
 
-	// Take-off first
+/*	// Take-off first
 	tello.SendCommand("takeoff");
 	while (!(tello.ReceiveResponse()))
-		;
+		;*/
 
 	bool busy { false };
 	while (true) {
@@ -230,25 +233,6 @@ int main(int argc, char **argv) {
 			busy = false;
 		}
 
-		// Act
-		if (const auto target = FindTarget(frame)) {
-			const auto steer = Steer(TELLO_POSITION, *target,
-					SQUARE_TARTET_DISTANCE, CM_PER_PIXEL, MIN_STEP, MAX_STEP);
-			const std::string command { steer.first };
-			if (!command.empty()) {
-				Point2i velocity { steer.second };
-				if (!busy) {
-					tello.SendCommand(command);
-					std::cout << "Command: " << command << std::endl;
-					busy = true;
-				}
-
-				// Show how Tello sees the target
-				DrawMaxRowAndCol(frame, *target);
-				DrawVelocity(frame, TELLO_POSITION, velocity);
-			}
-		}
-
 		// Show what the Tello sees
 		resize(frame, frame, Size(), 0.75, 0.75);
 		imshow("CTello Stream", frame);
@@ -256,6 +240,10 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
+
+	// G2o lib
+	VertexSim3Expmap vertesSim3{};
+	std::cout << "BG DIMENSION: " << vertesSim3.Dimension << std::endl;
 
 	return 0;
 }
