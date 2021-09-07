@@ -41,7 +41,10 @@ const char* const TELLO_STREAM_URL{"udp://0.0.0.0:11111"};
 int main(int argc, char **argv) {
 
 //	 tello SHIT
-    ORB_SLAM2::System System("../orb_slam/Vocabulary/ORBvoc.txt", "../orb_slam/config/TELLO.yaml", ORB_SLAM2::System::RGBD, true);
+    ORB_SLAM2::System System("/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt", "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::RGBD, true);
+
+
+    std::cout << "BG DONE" << std::endl;
 /*    Tello tello { };
     if (!tello.Bind()) {
         return 0;
