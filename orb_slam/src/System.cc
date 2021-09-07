@@ -20,8 +20,8 @@
 
 
 
-#include "System.h"
-#include "Converter.h"
+#include "../include/System.h"
+#include "../include/Converter.h"
 #include <thread>
 #include <pangolin/pangolin.h>
 #include <iomanip>

@@ -81,9 +81,9 @@ main/RealTimeLearningApp: main/CMakeFiles/RealTimeLearningApp.dir/main.cpp.o
 main/RealTimeLearningApp: main/CMakeFiles/RealTimeLearningApp.dir/build.make
 main/RealTimeLearningApp: lib/libcore.so
 main/RealTimeLearningApp: lib/libdroneLib.so
-main/RealTimeLearningApp: lib/liborb_slam.so
-main/RealTimeLearningApp: lib/libDBoW2.so
-main/RealTimeLearningApp: lib/libg2o.so
+main/RealTimeLearningApp: /local/ORB_SLAM2/lib/libORB_SLAM2.so
+main/RealTimeLearningApp: /local/ORB_SLAM2/Thirdparty/DBoW2/lib/libDBoW2.so
+main/RealTimeLearningApp: /local/ORB_SLAM2/Thirdparty/g2o/lib/libg2o.so
 main/RealTimeLearningApp: /usr/lib/x86_64-linux-gnu/libboost_serialization.so.1.71.0
 main/RealTimeLearningApp: /usr/local/lib/libopencv_stitching.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_superres.so.3.3.1
