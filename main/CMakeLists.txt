@@ -25,10 +25,9 @@ ${Pangolin_INCLUDE_DIRS}
 target_link_libraries(RealTimeLearningApp PUBLIC 
 core::core 
 droneLib::droneLib
-#orb_slam::orb_slam
-/local/ORB_SLAM2/lib/libORB_SLAM2.so
-/local/ORB_SLAM2/Thirdparty/DBoW2/lib/libDBoW2.so
-/local/ORB_SLAM2/Thirdparty/g2o/lib/libg2o.so
+/local/RealTimeLearning/lib/liborb_slam.so
+/local/RealTimeLearning/lib/libDBoW2.so
+/local/RealTimeLearning/lib/libg2o.so
 ${Boost_LIBRARIES}
 ${OpenCV_LIBRARIES}
 ${PYTHON_LIBRARIES}
