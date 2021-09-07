@@ -21,7 +21,6 @@
 #ifndef KEYFRAME_H
 #define KEYFRAME_H
 #include <iostream>
-using namespace std;
 #include "MapPoint.h"
 #include "../Thirdparty/DBoW2/DBoW2/BowVector.h"
 #include "../Thirdparty/DBoW2/DBoW2/FeatureVector.h"
@@ -39,6 +38,7 @@ using namespace std;
 #include <boost/serialization/split_member.hpp>
 #include <mutex>
 
+using namespace std;
 
 namespace ORB_SLAM2
 {
