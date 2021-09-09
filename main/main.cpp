@@ -1,9 +1,14 @@
+#include<chrono>
+#include <iostream>
+#include <thread>
+
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include "../drone_lib/include/ctello.h"
 
@@ -36,38 +41,59 @@ using cv::VideoCapture;
 using g2o::VertexSim3Expmap;
 
 // URL where the Tello sends its video stream to.
-const char* const TELLO_STREAM_URL{"udp://0.0.0.0:11111"};
+const char *const TELLO_STREAM_URL{"udp://0.0.0.0:11111?overrun_nonfatal=1&fifo_size=50000000"};
 
 int main(int argc, char **argv) {
 
-//	 tello SHIT
-    ORB_SLAM2::System System("/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt", "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::RGBD, true);
-
-
-    std::cout << "BG DONE" << std::endl;
-/*    Tello tello { };
+   Tello tello{};
     if (!tello.Bind()) {
         return 0;
     }
 
-	tello.SendCommand("streamon");
-	while (!(tello.ReceiveResponse()))
-		;
+    std::cout << "starting streaming on tello" << std::endl;
+    tello.SendCommand("streamon");
+    while (!(tello.ReceiveResponse())) { ; }
 
-	VideoCapture capture { TELLO_STREAM_URL, CAP_FFMPEG };
-    capture.set(CV_CAP_PROP_BUFFERSIZE, 3);
+    ORB_SLAM2::System slam("/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt",
+                           "/local/RealTimeLearning/orb_slam/config/TELLO.yaml",
+						   ORB_SLAM2::System::MONOCULAR, true);
+
+
+    std::cout << "tello streaming started" << std::endl;
+
+    // Set to whatever video source
+    VideoCapture capture{TELLO_STREAM_URL, CAP_FFMPEG};
+    capture.set(CV_CAP_PROP_BUFFERSIZE, 5);
+    double fps = capture.get(CV_CAP_PROP_FPS);
+
+    int frameCount = 0;
+    std::cout << "bla" << std::endl;
+    std::thread t([&tello](){
+        tello.SendCommand("takeoff");
+        while (!(tello.ReceiveResponse())) { ; }
+        tello.SendCommand("forward 30");
+        while (!(tello.ReceiveResponse())) { ; }
+        tello.SendCommand("cw 90");
+        tello.SendCommand("right 30");
+        while (!(tello.ReceiveResponse())) { ; }
+        while (!(tello.ReceiveResponse())) { ; }
+        tello.SendCommand("cw 90");
+        while (!(tello.ReceiveResponse())) { ; }
+        tello.SendCommand("land");
+        while (!(tello.ReceiveResponse())) { ; }
+    });
+
 
     while (true) {
-		Mat frame;
+        cv::Mat colorMat;
         capture.grab();
-		capture >> frame;
+        capture >> colorMat;
+        if(!colorMat.empty()) {
+            slam.TrackMonocular(colorMat, frameCount / fps);
+            frameCount++;
+        }
+    }
 
-		resize(frame, frame, Size(), 0.75, 0.75);
-		imshow("CTello Stream", frame);
-		if (waitKey(1) == 27) {
-			break;
-		}
-	}*/
-
-	return 0;
+    std::cout << "DONE" << std::endl;
+    return 0;
 }
