@@ -5,16 +5,16 @@
 #--------------------------------------------------------------------------------------------
 
 # Camera calibration and distortion parameters (OpenCV)
-Camera.fx: 921.011323
-Camera.fy: 924.635254
-Camera.cx: 485.266459
-Camera.cy: 364.750479
+Camera.fx: 922.5213056
+Camera.fy: 924.33005981
+Camera.cx: 484.78998815
+Camera.cy: 429.23648254
 
-Camera.k1: -0.00005775963
-Camera.k2: -0.259287187
-Camera.p1: -0.00935657396
-Camera.p2: 0.00188959045
-Camera.k3: 0.0
+Camera.k1: 0.00274160127
+Camera.k2: -0.188511491
+Camera.p1: 0.00716351659
+Camera.p2: 0.00035652426
+Camera.k3: 0.453777577
 
 # Camera frames per second
 Camera.fps: 30.0
@@ -31,31 +31,32 @@ Camera.height: 720
 #--------------------------------------------------------------------------------------------
 
 # ORB Extractor: Number of features per image
-ORBextractor.nFeatures: 1000
+ORBextractor.nFeatures: 7500
 
 # ORB Extractor: Scale factor between levels in the scale pyramid
-ORBextractor.scaleFactor: 1.15
+ORBextractor.scaleFactor: 1.2
 
 # ORB Extractor: Number of levels in the scale pyramid
-ORBextractor.nLevels: 10
+ORBextractor.nLevels: 8
 
 # ORB Extractor: Fast threshold
 # Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
 # Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
 # You can lower these values if your images have low contrast
 ORBextractor.iniThFAST: 20
-ORBextractor.minThFAST: 14
+ORBextractor.minThFAST: 7
+
 
 #--------------------------------------------------------------------------------------------
 # Viewer Parameters
 #---------------------------------------------------------------------------------------------
-Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameSize: 0.01
 Viewer.KeyFrameLineWidth: 1
-Viewer.GraphLineWidth: 0.9
+Viewer.GraphLineWidth: 1
 Viewer.PointSize: 2
-Viewer.CameraSize: 0.08
-Viewer.CameraLineWidth: 3
+Viewer.CameraSize: 0.15
+Viewer.CameraLineWidth: 2
 Viewer.ViewpointX: 0
-Viewer.ViewpointY: -0.7
-Viewer.ViewpointZ: -1.8
-Viewer.ViewpointF: 500
+Viewer.ViewpointY: -10
+Viewer.ViewpointZ: -0.1
+Viewer.ViewpointF: 2000
