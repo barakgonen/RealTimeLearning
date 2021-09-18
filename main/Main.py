@@ -8,7 +8,7 @@ fig = plt.figure()
 ax = fig.add_subplot(projection='3d')
 plt.autoscale()
 
-file = open('./Third FUcking Working Coordinates.csv')
+file = open('/local/RealTimeLearning/main/Third FUcking Working Coordinates.csv')
 type(file)
 csvreader = csv.reader(file)
 

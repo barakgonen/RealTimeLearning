@@ -39,26 +39,20 @@ using g2o::VertexSim3Expmap;
 
 // URL where the Tello sends its video stream to.
 const char* const TELLO_STREAM_URL{"udp://0.0.0.0:11111"};
-
+const std::string pythonScriptPath = "/local/RealTimeLearning/main/Main.py";
 int main(int argc, char **argv) {
 
-//	 tello SHIT
-    ORB_SLAM2::System System("/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt", "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::RGBD, true);
-
-	std::string fileName = "Main.py";
 	//Initialize the python instance
 	Py_Initialize();
-	FILE* PScriptFile = fopen(fileName.c_str(), "r");
+	FILE* PScriptFile = fopen(pythonScriptPath.c_str(), "r");
 	if(PScriptFile){
-	PyRun_SimpleFile(PScriptFile, fileName.c_str());
-	fclose(PScriptFile);
+		PyRun_SimpleFile(PScriptFile, pythonScriptPath.c_str());
+		fclose(PScriptFile);
 	}
 
-	//Close the python instance
-	Py_Finalize();
-
-    std::cout << "BG DONE" << std::endl;
-/*    Tello tello { };
+    ORB_SLAM2::System System("/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt", "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::RGBD, true);
+    //	 tello SHIT
+    Tello tello { };
     if (!tello.Bind()) {
         return 0;
     }
@@ -80,7 +74,9 @@ int main(int argc, char **argv) {
 		if (waitKey(1) == 27) {
 			break;
 		}
-	}*/
+	}
 
+	//Close the python instance
+	Py_Finalize();
 	return 0;
 }
