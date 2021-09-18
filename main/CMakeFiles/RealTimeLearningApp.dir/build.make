@@ -113,7 +113,9 @@ main/RealTimeLearningApp: /usr/local/lib/libopencv_xfeatures2d.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_ximgproc.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_xobjdetect.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_xphoto.so.3.3.1
+main/RealTimeLearningApp: /usr/lib/x86_64-linux-gnu/libpython3.8.so
 main/RealTimeLearningApp: /usr/local/lib/libpangolin.so
+main/RealTimeLearningApp: /usr/lib/x86_64-linux-gnu/libpython3.8.so
 main/RealTimeLearningApp: /usr/local/lib/libopencv_photo.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_shape.so.3.3.1
 main/RealTimeLearningApp: /usr/local/lib/libopencv_calib3d.so.3.3.1

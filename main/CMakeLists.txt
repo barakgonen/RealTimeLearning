@@ -12,7 +12,10 @@ endif()
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(Boost  1.54.0 REQUIRED COMPONENTS serialization)   
+find_package(PythonLibs REQUIRED)
 
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(/usr/include/python3.8)
 target_include_directories(RealTimeLearningApp PUBLIC
 ${Boost_INCLUDE_DIRS}
 ${OpenCV_INCLUDE_DIRS}
@@ -33,4 +36,5 @@ ${OpenCV_LIBRARIES}
 ${PYTHON_LIBRARIES}
 ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
+${PYTHON_LIBRARIES}
 )

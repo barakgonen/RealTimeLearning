@@ -6,5 +6,5 @@ CXX_FLAGS = -g   -std=gnu++14
 
 CXX_DEFINES = -DBOOST_ALL_NO_LIB -DBOOST_SERIALIZATION_DYN_LINK
 
-CXX_INCLUDES = -I/local/ORB_SLAM2/include -I/local/RealTimeLearning/core -isystem /usr/local/include/opencv -isystem /usr/include/eigen3 
+CXX_INCLUDES = -I/usr/include/python3.8 -I/local/ORB_SLAM2/include -I/local/RealTimeLearning/core -isystem /usr/local/include/opencv -isystem /usr/include/eigen3 
 

@@ -5,10 +5,11 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
-
+#include <python3.8/Python.h>
 #include "../core/Point.h"
 #include <opencv2/opencv.hpp>
 #include <opencv2/videoio.hpp>
+#include <python3.8/pylifecycle.h>
 
 #include <algorithm>
 #include <iostream>
@@ -175,6 +176,16 @@ void DrawVelocity(Mat& image,
 int main(int argc, char **argv) {
 	cout << "Hello bgbg! VFVF " << std::endl;
 
+	std::cout << "Running python code!" << std::endl;
+	std::string fileName = "Main.py";
+	//Initialize the python instance
+	Py_Initialize();
+	FILE* PScriptFile = fopen(fileName.c_str(), "r");
+	if(PScriptFile){
+		PyRun_SimpleFile(PScriptFile, fileName.c_str());
+		fclose(PScriptFile);
+	}
+
 	// Using of core - like our future algorithms
 	Point p1 { 12121, 21212 };
 	p1.printPoint();
@@ -256,6 +267,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
-
+	//Close the python instance
+	Py_Finalize();
 	return 0;
 }

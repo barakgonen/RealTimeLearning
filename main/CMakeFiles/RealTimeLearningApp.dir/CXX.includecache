@@ -109,11 +109,15 @@ opencv2/imgproc.hpp
 -
 iostream
 -
+python3.8/Python.h
+-
 ../core/Point.h
 /local/RealTimeLearning/core/Point.h
 opencv2/opencv.hpp
 -
 opencv2/videoio.hpp
+-
+python3.8/pylifecycle.h
 -
 algorithm
 -
