@@ -102,11 +102,12 @@ int main(int argc, char **argv) {
     capture.set(CV_CAP_PROP_BUFFERSIZE, 5);
     double fps = capture.get(CV_CAP_PROP_FPS);
     bool lostTracking = false;
+    bool droneLanded = false;
     int frameCount = 0;
     std::cout << fps << std::endl;
 
     // Drone control thread
-    std::thread t([&tello, &lostTracking, &slam]() {
+    std::thread t([&tello, &lostTracking, &slam, &droneLanded]() {
         sendACommand(tello, "takeoff");
         sendACommand(tello, "up 20");
         lostTracking = false;
@@ -149,6 +150,8 @@ int main(int argc, char **argv) {
 
         // take off
         tello.SendCommand("land");
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        droneLanded = true;
     });
 
 
@@ -163,7 +166,7 @@ int main(int argc, char **argv) {
         }
     });
 
-    while (true) {
+    while (!droneLanded) {
         cv::Mat greyMat, colorMat;
         capture.grab();
         capture >> colorMat;
@@ -179,6 +182,10 @@ int main(int argc, char **argv) {
             frameCount++;
         }
     }
+
+    Point exitCoordinates = getExitCoordinates(slam);
+
+    // TODO: Fly to the exit
 
     return 0;
 }
