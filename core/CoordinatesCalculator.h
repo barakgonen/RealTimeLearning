@@ -7,16 +7,15 @@
 
 #ifndef CORE_COORDINATESCALCULATOR_H_
 #define CORE_COORDINATESCALCULATOR_H_
+#include <eigen3/Eigen/Core>
 #include <set>
 #include <vector>
 
-#include "ThreeDimensionPoint.h"
-
 class CoordinatesCalculator {
 public:
-	CoordinatesCalculator();
-	virtual ~CoordinatesCalculator();
-	std::set<ThreeDimensionPoint> getTopN(int n, const std::vector<ThreeDimensionPoint>& data);
+	CoordinatesCalculator() = default;
+	virtual ~CoordinatesCalculator() = default;
+	std::vector<std::pair<double, Eigen::Matrix<double, 3, 1>>> getTopN(int n, const std::vector<Eigen::Matrix<double,3,1>>& data);
 };
 
 #endif /* CORE_COORDINATESCALCULATOR_H_ */

@@ -1,7 +1,6 @@
 #include<chrono>
 #include <iostream>
 #include <thread>
-#include <iostream>
 
 #include <opencv2/core/mat.hpp>
 #include <opencv2/core/types.hpp>
@@ -12,7 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "../core/CoordinatesCalculator.h"
-#include "../core/ThreeDimensionPoint.h"
+#include "../core/Utils.h"
 #include "../drone_lib/include/ctello.h"
 
 #include "../orb_slam/include/System.h"
@@ -53,24 +52,22 @@ void saveMap(ORB_SLAM2::System &SLAM) {
     std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
     std::ofstream pointData;
     pointData.open("/tmp/RoomCoordiantes.csv");
-    std::vector<ThreeDimensionPoint> pointsVector;
+    std::vector<Eigen::Matrix<double,3,1>> pointsVector;
     CoordinatesCalculator calculator;
     for (auto p: mapPoints) {
         if (p != NULL) {
             auto point = p->GetWorldPos();
             Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(point);
             pointData << v.x() << "," << v.y() << "," << v.z() << std::endl;
-            pointsVector.push_back(ThreeDimensionPoint{(double)v.x(), (double)v.y(), (double)v.z()});
+            pointsVector.push_back(v);
         }
     }
     pointData.close();
     int numberOfPoints = 60;
     const auto& topN = calculator.getTopN(numberOfPoints, pointsVector);
-    // Do anything with that...
 }
 
 int main(int argc, char **argv) {
-
     Tello tello{};
     if (!tello.Bind()) {
         return 0;
