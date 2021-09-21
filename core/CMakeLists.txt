@@ -12,8 +12,6 @@ add_library(${library_name} SHARED "")
 add_library(core::core ALIAS ${library_name})
 
 target_sources(core PRIVATE
-        			Point.h
-        			Point.cpp
         			CoordinatesCalculator.h
         			CoordinatesCalculator.cpp
         			Utils.h

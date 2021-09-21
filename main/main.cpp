@@ -52,11 +52,11 @@ void saveMap(ORB_SLAM2::System &SLAM) {
     std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
     std::ofstream pointData;
     pointData.open("/tmp/RoomCoordiantes.csv");
-    std::vector<Eigen::Matrix<double,3,1>> pointsVector;
+    std::vector<POINT> pointsVector;
     for (auto p: mapPoints) {
         if (p != NULL) {
             auto point = p->GetWorldPos();
-            Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(point);
+            POINT v = ORB_SLAM2::Converter::toVector3d(point);
             pointData << v.x() << "," << v.y() << "," << v.z() << std::endl;
             pointsVector.push_back(v);
         }
@@ -64,23 +64,28 @@ void saveMap(ORB_SLAM2::System &SLAM) {
     pointData.close();
 }
 
-Point getExitCoordinates(ORB_SLAM2::System &SLAM){
+POINT getExitCoordinates(ORB_SLAM2::System &SLAM){
     std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
 
-    std::vector<Eigen::Matrix<double,3,1>> pointsVector;
+    std::vector<POINT> pointsVector;
     CoordinatesCalculator calculator;
 
     for (auto p: mapPoints) {
         if (p != NULL) {
             auto point = p->GetWorldPos();
-            Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(point);
-            pointsVector.push_back(v);
+            pointsVector.push_back(ORB_SLAM2::Converter::toVector3d(point));
         }
     }
-    return calculator.DetectExitCoordinates(60, pointsVector);
+    return calculator.detectExitCoordinate(60, pointsVector);
 }
 
 int main(int argc, char **argv) {
+
+	const auto bg = read_csv("/local/RealTimeLearning/main/bg.csv");
+
+	const POINT exitPoint = CoordinatesCalculator{}.detectExitCoordinate(60, bg);
+
+	std::cout << "<Main()> Exit point is: [x = " << exitPoint.x() << ", y = " << exitPoint.y() << ", z = " << exitPoint.z() << "]" << std::endl;
     Tello tello{};
     if (!tello.Bind()) {
         return 0;
@@ -183,7 +188,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    Point exitCoordinates = getExitCoordinates(slam);
+    POINT exitCoordinates = getExitCoordinates(slam);
 
     // TODO: Fly to the exit
 

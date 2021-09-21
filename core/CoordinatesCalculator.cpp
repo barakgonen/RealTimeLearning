@@ -5,50 +5,47 @@
  *      Author: barakg
  */
 
+#include <map>
+#include <cmath>
+#include <vector>
+#include <iostream>
+
 #include "CoordinatesCalculator.h"
 
-#include <cmath>
-#include <map>
-#include <iostream>
-#include <vector>
 using namespace std;
 
-Point CoordinatesCalculator::DetectExitCoordinates(int n, const vector<Eigen::Matrix<double,3,1>>& data) {
+POINT CoordinatesCalculator::detectExitCoordinate(int n, const vector<POINT>& pointsInMapping) {
 
 	// We use map for kind of insertion sort, since it keeps the keys ordered. instead of sorting at the end
-	std::map<double, const Eigen::Matrix<double,3,1>> distanceToPoint;
+	std::map<double, const POINT> distanceToPoint;
 	double rangesSum = 0;
     int processedCoordinates = 1;
-	for(const auto point1 : data){
+	for(const auto point1 : pointsInMapping){
 		rangesSum = 0;
-		for(const auto point2 : data){
+		for(const auto point2 : pointsInMapping){
 			// Adding the current coordinate range to the main coordinate ranges sum
-			rangesSum += std::sqrt(std::pow(point1.x() - point2.x(), 2) + std::pow(point1.y() - point2.y(), 2) +std::pow(point1.z() - point2.z(), 2));
+			rangesSum += std::sqrt(std::pow(point1.x() - point2.x(), 2) +
+								   std::pow(point1.y() - point2.y(), 2) +
+								   std::pow(point1.z() - point2.z(), 2));
 		}
-		distanceToPoint.insert(std::pair<double, Eigen::Matrix<double,3,1>>(rangesSum, point1));
+		distanceToPoint.insert(std::pair<double, POINT>(rangesSum, point1));
 
-        std::cout << processedCoordinates++ << " coordinates has been processed." << std::endl;
+        std::cout << "<CoordinatesCalculator::detectExitCoordinate()> "
+        		<< processedCoordinates++ << " coordinates has been processed." << std::endl;
 
 	}
 
-	std::map<double, const Eigen::Matrix<double,3,1>>::iterator iter = std::prev(distanceToPoint.end(), n);
+	int numberOfPointsProcessed = 0;
+	double xSum, ySum, zSum = 0;
 
-    double xSum = 0;
-    double ySum = 0;
-    double zSum = 0;
-
-    // Summing the x,y,z of the highest ranges coordinates
-	while(iter != distanceToPoint.end()) {
+	for (auto iter = distanceToPoint.rbegin();
+			iter != distanceToPoint.rend() && numberOfPointsProcessed < n; ++iter) {
 		xSum += iter->second.x();
-        ySum += iter->second.y();
-        zSum += iter->second.z();
-		std::move(iter);
+		ySum += iter->second.y();
+		zSum += iter->second.z();
+		numberOfPointsProcessed++;
 	}
 
-    Point exitPoint = Point(xSum/n, ySum/n, zSum/n);
-    std::cout << "The exit coordinate: ";
-    exitPoint.printPoint();
-
-    // Averaging the final sum
-	return exitPoint;
+    // Averaging the final sum and constructing exit point
+	return {xSum/n, ySum/n, zSum/n};
 }

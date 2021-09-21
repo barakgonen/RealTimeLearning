@@ -10,13 +10,14 @@
 #include <eigen3/Eigen/Core>
 #include <set>
 #include <vector>
-#include "Point.h"
+
+#define POINT Eigen::Matrix<double,3,1>
 
 class CoordinatesCalculator {
 public:
 	CoordinatesCalculator() = default;
 	virtual ~CoordinatesCalculator() = default;
-	Point DetectExitCoordinates(int n, const std::vector<Eigen::Matrix<double,3,1>>& data);
+	POINT detectExitCoordinate(int n, const std::vector<POINT>& points);
 };
 
 #endif /* CORE_COORDINATESCALCULATOR_H_ */
