@@ -53,7 +53,6 @@ void saveMap(ORB_SLAM2::System &SLAM) {
     std::ofstream pointData;
     pointData.open("/tmp/RoomCoordiantes.csv");
     std::vector<Eigen::Matrix<double,3,1>> pointsVector;
-    CoordinatesCalculator calculator;
     for (auto p: mapPoints) {
         if (p != NULL) {
             auto point = p->GetWorldPos();
@@ -63,8 +62,22 @@ void saveMap(ORB_SLAM2::System &SLAM) {
         }
     }
     pointData.close();
-    int numberOfPoints = 60;
-    const auto& topN = calculator.getTopN(numberOfPoints, pointsVector);
+}
+
+Point getExitCoordinates(ORB_SLAM2::System &SLAM){
+    std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
+
+    std::vector<Eigen::Matrix<double,3,1>> pointsVector;
+    CoordinatesCalculator calculator;
+
+    for (auto p: mapPoints) {
+        if (p != NULL) {
+            auto point = p->GetWorldPos();
+            Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(point);
+            pointsVector.push_back(v);
+        }
+    }
+    return calculator.DetectExitCoordinates(60, pointsVector);
 }
 
 int main(int argc, char **argv) {

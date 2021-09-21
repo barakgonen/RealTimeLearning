@@ -13,12 +13,12 @@
 #include <vector>
 using namespace std;
 
-vector<std::pair<double, Eigen::Matrix<double, 3, 1>>> CoordinatesCalculator::getTopN(int n, const vector<Eigen::Matrix<double,3,1>>& data) {
+Point CoordinatesCalculator::DetectExitCoordinates(int n, const vector<Eigen::Matrix<double,3,1>>& data) {
 
 	// We use map for kind of insertion sort, since it keeps the keys ordered. instead of sorting at the end
 	std::map<double, const Eigen::Matrix<double,3,1>> distanceToPoint;
-	std::vector<std::pair<double, Eigen::Matrix<double, 3, 1>>> resultVec;
 	double rangesSum = 0;
+    int processedCoordinates = 1;
 	for(const auto point1 : data){
 		rangesSum = 0;
 		for(const auto point2 : data){
@@ -27,17 +27,28 @@ vector<std::pair<double, Eigen::Matrix<double, 3, 1>>> CoordinatesCalculator::ge
 		}
 		distanceToPoint.insert(std::pair<double, Eigen::Matrix<double,3,1>>(rangesSum, point1));
 
+        std::cout << processedCoordinates++ << " coordinates has been processed." << std::endl;
+
 	}
 
-	std::map<double, const Eigen::Matrix<double,3,1>>::iterator iter = distanceToPoint.begin();
-	std::map<double, const Eigen::Matrix<double,3,1>>::iterator curr = distanceToPoint.begin();
-	std::advance(iter, n);
+	std::map<double, const Eigen::Matrix<double,3,1>>::iterator iter = std::prev(distanceToPoint.end(), n);
 
-	while(curr != iter) {
-		const auto val = *curr;
-		resultVec.push_back(std::move(*curr));
-		curr++;
+    double xSum = 0;
+    double ySum = 0;
+    double zSum = 0;
+
+    // Summing the x,y,z of the highest ranges coordinates
+	while(iter != distanceToPoint.end()) {
+		xSum += iter->second.x();
+        ySum += iter->second.y();
+        zSum += iter->second.z();
+		std::move(iter);
 	}
 
-	return resultVec;
+    Point exitPoint = Point(xSum/n, ySum/n, zSum/n);
+    std::cout << "The exit coordinate: ";
+    exitPoint.printPoint();
+
+    // Averaging the final sum
+	return exitPoint;
 }

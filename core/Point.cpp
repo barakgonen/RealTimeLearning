@@ -8,12 +8,35 @@
 #include "Point.h"
 
 #include <iostream>
-Point::Point(int x, int y)
+Point::Point(double x, double y, double z)
 : x{x}
 , y{y}
+, z{z}
 {
-	// TODO Auto-generated constructor stub
+}
 
+double Point::getX() const {
+    return x;
+}
+
+void Point::setX(double x) {
+    Point::x = x;
+}
+
+double Point::getY() const {
+    return y;
+}
+
+void Point::setY(double y) {
+    Point::y = y;
+}
+
+double Point::getZ() const {
+    return z;
+}
+
+void Point::setZ(double z) {
+    Point::z = z;
 }
 
 void Point::printPoint() {

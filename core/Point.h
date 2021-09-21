@@ -10,14 +10,27 @@
 
 class Point {
 public:
-	Point(int x, int y);
+	Point(double x, double y, double z);
 	virtual ~Point();
 
 	void printPoint();
 
+    double getX() const;
+
+    void setX(double x);
+
+    double getY() const;
+
+    void setY(double y);
+
+    double getZ() const;
+
+    void setZ(double z);
+
 protected:
-	int x;
-	int y;
+	double x;
+    double y;
+    double z;
 
 };
 
