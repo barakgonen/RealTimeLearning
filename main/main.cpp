@@ -53,19 +53,9 @@ void sendACommand(Tello &tello, const std::string &command) {
     std::cout << "received response " << std::endl;
 }
 
-POINT getExitCoordinates(ORB_SLAM2::System &SLAM){
-    std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
-
-    std::vector<POINT> pointsVector;
+POINT getExitCoordinates(const std::vector<POINT> &PointsVector){
     CoordinatesCalculator calculator;
-
-    for (auto p: mapPoints) {
-        if (p != NULL) {
-            auto point = p->GetWorldPos();
-            pointsVector.push_back(ORB_SLAM2::Converter::toVector3d(point));
-        }
-    }
-    return calculator.detectExitCoordinate(60, pointsVector);
+    return calculator.detectExitCoordinate(60, PointsVector);
 }
 
 int main(int argc, char **argv) {
@@ -110,19 +100,19 @@ int main(int argc, char **argv) {
             if(lostTracking){
                 std::cout << "Lost tracking trying to localize" << std::endl;
                 sendACommand(tello, "cw 20");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
                 sendACommand(tello, "back 35");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
                 sendACommand(tello, "forward 35");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
                 sendACommand(tello, "ccw 20");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
             // Localizing help
             sendACommand(tello, "back 35");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
             sendACommand(tello, "forward 35");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
 
 /*            // Move left
             sendACommand(tello, "right 30");
@@ -136,11 +126,11 @@ int main(int argc, char **argv) {
             sendACommand(tello, "ccw 30");
 
             //Wait
-            std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+            std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         }
 
         // take off
-        tello.SendCommand("land");
+        sendACommand(tello, "land");
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         droneLanded = true;
     });
@@ -153,12 +143,16 @@ int main(int argc, char **argv) {
             std::cout << "EMERGENCYYYY" << std::endl;
             tello.SendCommand("land");
             tello.SendCommand("emergency");
-            // TODO: REMOVE
-            POINT exitCoordinate = getExitCoordinates(slam);
+
+            auto pointsVector = saveMapToFile(slam);
+            std::cout << "Map saved" << std::endl;
+
+            POINT exitCoordinate = getExitCoordinates(pointsVector);
+            std::cout << "flying to x = " << exitCoordinate.x() << ", y = " << exitCoordinate.y() << ", z = " << exitCoordinate.z() << std::endl;
         }
     });
 
-    while (!droneLanded) {
+    while (true) {
         cv::Mat greyMat, colorMat;
         capture.grab();
         capture >> colorMat;
@@ -174,15 +168,13 @@ int main(int argc, char **argv) {
             frameCount++;
         }
     }
-    POINT exitCoordinate = getExitCoordinates(slam);
 
-
-    // Drone control thread
+    /*// Drone control thread
     std::thread escapeThread([&tello, &exitCoordinate]() {
     	sendACommand(tello, "takeoff");
     	std::string command = "go " + std::to_string(exitCoordinate.x()) + " " + std::to_string(exitCoordinate.y()) + " " + std::to_string(exitCoordinate.z()) + " " + std::to_string(10);
     	sendACommand(tello, "land");
-	});
+	});*/
 
     return 0;
 }

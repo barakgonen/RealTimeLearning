@@ -67,7 +67,7 @@ std::vector<Eigen::Matrix<double, 3, 1>> read_csv(std::string filename){
     return result;
 }
 
-void saveMapToFile(ORB_SLAM2::System &SLAM) {
+std::vector<POINT> saveMapToFile(ORB_SLAM2::System &SLAM) {
     std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
     std::ofstream pointData;
     pointData.open("/tmp/RoomCoordiantes.csv");
@@ -81,6 +81,7 @@ void saveMapToFile(ORB_SLAM2::System &SLAM) {
         }
     }
     pointData.close();
+    return pointsVector;
 }
 
 

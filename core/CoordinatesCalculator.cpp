@@ -30,8 +30,11 @@ POINT CoordinatesCalculator::detectExitCoordinate(int n, const vector<POINT>& po
 		}
 		distanceToPoint.insert(std::pair<double, POINT>(rangesSum, point1));
 
-        std::cout << "<CoordinatesCalculator::detectExitCoordinate()> "
-        		<< processedCoordinates++ << " coordinates has been processed." << std::endl;
+        if (processedCoordinates % 1000 == 0) {
+            std::cout << "<CoordinatesCalculator::detectExitCoordinate()> "
+                      << processedCoordinates++ << " coordinates has been processed." << std::endl;
+
+        }
 
 	}
 
