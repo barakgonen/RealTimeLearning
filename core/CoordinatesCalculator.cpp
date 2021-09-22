@@ -46,6 +46,41 @@ POINT CoordinatesCalculator::detectExitCoordinate(int n, const vector<POINT>& po
 		numberOfPointsProcessed++;
 	}
 
+	POINT simpleAvg{xSum/n, ySum/n, zSum/n};
+	// Standard deviation calculation
+	double xSD, ySD, zSD = 0;
+	numberOfPointsProcessed = 0;
+	for (auto iter = distanceToPoint.rbegin();
+			iter != distanceToPoint.rend() && numberOfPointsProcessed < n; ++iter) {
+		xSD += std::pow(iter->second.x() - simpleAvg.x(), 2);
+		ySD += std::pow(iter->second.y() - simpleAvg.y(), 2);
+		zSD += std::pow(iter->second.z() - simpleAvg.z(), 2);
+		numberOfPointsProcessed++;
+	}
+
+	std::vector<POINT> cleanPoints;
+	POINT sd{std::sqrt(xSD/n), std::sqrt(ySD/n), std::sqrt(zSD/n)};
+	numberOfPointsProcessed = 0;
+	for (auto iter = distanceToPoint.rbegin();
+				iter != distanceToPoint.rend() && numberOfPointsProcessed < n; ++iter) {
+		if ((std::sqrt(std::pow(iter->second.x() - simpleAvg.x(), 2)) <= sd.x())
+		 && (std::sqrt(std::pow(iter->second.y() - simpleAvg.y(), 2)) <= sd.y())
+		 && (std::sqrt(std::pow(iter->second.z() - simpleAvg.z(), 2)) <= sd.z())) {
+			cleanPoints.push_back(iter->second);
+		}
+		numberOfPointsProcessed++;
+	}
+
+	xSum = 0;
+	ySum = 0;
+	zSum = 0;
+	// Calculating avg after cleanup
+	for (const auto p : cleanPoints) {
+		xSum += p.x();
+		ySum += p.y();
+		zSum += p.z();
+	}
+
     // Averaging the final sum and constructing exit point
-	return {xSum/n, ySum/n, zSum/n};
+	return {xSum/cleanPoints.size(), ySum/cleanPoints.size(), zSum/cleanPoints.size()};
 }

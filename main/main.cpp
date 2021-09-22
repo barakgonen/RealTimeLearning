@@ -153,6 +153,8 @@ int main(int argc, char **argv) {
             std::cout << "EMERGENCYYYY" << std::endl;
             tello.SendCommand("land");
             tello.SendCommand("emergency");
+            // TODO: REMOVE
+            POINT exitCoordinate = getExitCoordinates(slam);
         }
     });
 
@@ -172,7 +174,6 @@ int main(int argc, char **argv) {
             frameCount++;
         }
     }
-//    saveMap(slam);
     POINT exitCoordinate = getExitCoordinates(slam);
 
 
