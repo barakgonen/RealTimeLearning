@@ -46,22 +46,11 @@ using g2o::VertexSim3Expmap;
 // URL where the Tello sends its video stream to.
 const char *const TELLO_STREAM_URL{"udp://0.0.0.0:11111?overrun_nonfatal=1&fifo_size=50000000"};
 
-void sendACommand(Tello &tello, const std::string &command);
-
-void saveMap(ORB_SLAM2::System &SLAM) {
-    std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
-    std::ofstream pointData;
-    pointData.open("/tmp/RoomCoordiantes.csv");
-    std::vector<POINT> pointsVector;
-    for (auto p: mapPoints) {
-        if (p != NULL) {
-            auto point = p->GetWorldPos();
-            POINT v = ORB_SLAM2::Converter::toVector3d(point);
-            pointData << v.x() << "," << v.y() << "," << v.z() << std::endl;
-            pointsVector.push_back(v);
-        }
-    }
-    pointData.close();
+void sendACommand(Tello &tello, const std::string &command) {
+    tello.SendCommand(command);
+    std::cout << "sent command " << command << std::endl;
+    while (!(tello.ReceiveResponse())) { ; }
+    std::cout << "received response " << std::endl;
 }
 
 POINT getExitCoordinates(ORB_SLAM2::System &SLAM){
@@ -83,10 +72,7 @@ int main(int argc, char **argv) {
 
 	const auto bg = read_csv("/local/RealTimeLearning/main/bg.csv");
 
-	const POINT exitPoint = CoordinatesCalculator{}.detectExitCoordinate(60, bg);
-
-	std::cout << "<Main()> Exit point is: [x = " << exitPoint.x() << ", y = " << exitPoint.y() << ", z = " << exitPoint.z() << "]" << std::endl;
-    Tello tello{};
+	Tello tello{};
     if (!tello.Bind()) {
         return 0;
     }
@@ -167,7 +153,6 @@ int main(int argc, char **argv) {
             std::cout << "EMERGENCYYYY" << std::endl;
             tello.SendCommand("land");
             tello.SendCommand("emergency");
-            saveMap(slam);
         }
     });
 
@@ -187,18 +172,16 @@ int main(int argc, char **argv) {
             frameCount++;
         }
     }
+//    saveMap(slam);
+    POINT exitCoordinate = getExitCoordinates(slam);
 
-    POINT exitCoordinates = getExitCoordinates(slam);
 
-    // TODO: Fly to the exit
+    // Drone control thread
+    std::thread escapeThread([&tello, &exitCoordinate]() {
+    	sendACommand(tello, "takeoff");
+    	std::string command = "go " + std::to_string(exitCoordinate.x()) + " " + std::to_string(exitCoordinate.y()) + " " + std::to_string(exitCoordinate.z()) + " " + std::to_string(10);
+    	sendACommand(tello, "land");
+	});
 
     return 0;
 }
-
-void sendACommand(Tello &tello, const std::string &command) {
-    tello.SendCommand(command);
-    std::cout << "sent command " << command << std::endl;
-    while (!(tello.ReceiveResponse())) { ; }
-    std::cout << "received response " << std::endl;
-}
-

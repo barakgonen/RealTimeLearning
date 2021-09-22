@@ -12,6 +12,8 @@
 #include <vector>
 #include <iosfwd>
 
+#include "../orb_slam/include/Converter.h"
+#include "../orb_slam/include/System.h"
 /**
  * Utility functions
  */
@@ -63,6 +65,22 @@ std::vector<Eigen::Matrix<double, 3, 1>> read_csv(std::string filename){
     // Close file
     myFile.close();
     return result;
+}
+
+void saveMapToFile(ORB_SLAM2::System &SLAM) {
+    std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
+    std::ofstream pointData;
+    pointData.open("/tmp/RoomCoordiantes.csv");
+    std::vector<POINT> pointsVector;
+    for (auto p: mapPoints) {
+        if (p != NULL) {
+            auto point = p->GetWorldPos();
+            POINT v = ORB_SLAM2::Converter::toVector3d(point);
+            pointData << v.x() << "," << v.y() << "," << v.z() << std::endl;
+            pointsVector.push_back(v);
+        }
+    }
+    pointData.close();
 }
 
 
