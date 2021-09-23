@@ -14,6 +14,11 @@
 
 #include "../orb_slam/include/Converter.h"
 #include "../orb_slam/include/System.h"
+#include <chrono>
+#include <utility>
+
+typedef std::chrono::high_resolution_clock::time_point TimeVar;
+
 /**
  * Utility functions
  */
@@ -84,7 +89,16 @@ std::vector<POINT> saveMapToFile(ORB_SLAM2::System &SLAM) {
     return pointsVector;
 }
 
+#define duration(a) std::chrono::duration_cast<std::chrono::milliseconds>(a).count()
+#define timeNow() std::chrono::high_resolution_clock::now()
 
+template<typename F, typename... Args>
+double funcTimeMillis(F func, Args&&... args){
+	const auto start = std::chrono::system_clock::now();
+    func(std::forward<Args>(args)...);
+    const auto end = std::chrono::system_clock::now();
+    return duration(end - start);
+}
 
 
 #endif /* CORE_UTILS_H_ */
