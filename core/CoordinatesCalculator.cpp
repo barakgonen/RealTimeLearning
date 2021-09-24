@@ -18,14 +18,16 @@ using namespace std;
 void calculate_distance_between_points_in_range(
 		const std::vector<Point3D> &pointsInMapping, int startIndex,
 		int endIndex, std::map<double, const Point3D> &distanceToPoint,
-		int threadNumber, bool isMulti) {
-	std::cout
+		int threadNumber, bool isMulti, bool printsEnabld) {
+	if (printsEnabld) {
+		std::cout
 			<< "<CoordinatesCalculator::calculate_distance_between_points_in_range()> start index = "
 			<< startIndex << ", end index = " << endIndex
 			<< ", thread number = " << threadNumber << ", is multi? "
 			<< std::boolalpha << isMulti << std::endl;
+	}
+
 	double rangesSum = 0;
-	int processedCoordinates = 1;
 	for (int point1Index = startIndex; point1Index < endIndex; point1Index++) {
 		rangesSum = 0;
 		auto point1 = pointsInMapping.at(point1Index);
@@ -39,47 +41,28 @@ void calculate_distance_between_points_in_range(
 		distanceToPoint.insert(
 				std::pair<double, const Point3D>(rangesSum, point1));
 
-		if (processedCoordinates % 1000 == 0) {
+		if (printsEnabld && distanceToPoint.size() % 1000 == 0) {
 			if (isMulti) {
 				std::cout
 						<< "<CoordinatesCalculator::calculate_distance_between_points_in_range()> Thread num: "
-						<< threadNumber << ", " << processedCoordinates
+						<< threadNumber << ", " << distanceToPoint.size()
 						<< " coordinates has been processed." << std::endl;
 
 			} else {
 				std::cout
 						<< "<CoordinatesCalculator::calculate_distance_between_points_in_range()> "
-						<< processedCoordinates
+						<< distanceToPoint.size()
 						<< " coordinates has been processed." << std::endl;
 			}
 		}
-
-		processedCoordinates++;
 	}
 }
 
-Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor) {
-	std::map<double, const Point3D> multiMap;
-	const size_t nthreads = std::thread::hardware_concurrency();
-	std::cout << "parallel (" << nthreads << " threads):" << std::endl;
-	std::vector<std::thread> workers(nthreads);
-	const auto startMulti = std::chrono::system_clock::now();
-
-	int batchSize = mappedPointsFromSensor.size() / workers.size();
-	for (int threadNum = 0; threadNum < nthreads; threadNum++) {
-		int startIdex = threadNum * batchSize;
-		int endIndex = startIdex + batchSize;
-		workers.push_back(
-				std::thread(calculate_distance_between_points_in_range,
-						mappedPointsFromSensor, startIdex, endIndex,
-						std::ref(multiMap), threadNum, true));
-	}
-	for (std::thread &t : workers) {
-		if (t.joinable()) {
-			t.join();
-		}
-	}
-	return calculate_exit_point(multiMap, numberOfPointsToFilter);
+Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, bool isMulti, const bool printsEnabled) {
+	if (isMulti)
+		return detectExitCoordianteMulti(numberOfPointsToFilter, mappedPointsFromSensor, printsEnabled);
+	else
+		return detectExitCoordianteSingle(numberOfPointsToFilter, mappedPointsFromSensor, printsEnabled);
 }
 
 Point3D CoordinatesCalculator::calculate_exit_point(
@@ -115,14 +98,9 @@ Point3D CoordinatesCalculator::calculate_exit_point(
 	for (auto iter = distanceToPoint.rbegin();
 			iter != distanceToPoint.rend() && numberOfPointsProcessed < n;
 			++iter) {
-		if ((std::sqrt(std::pow(iter->second.getX() - simpleAvg.getX(), 2))
-				<= sd.getX())
-				&& (std::sqrt(
-						std::pow(iter->second.getY() - simpleAvg.getY(), 2))
-						<= sd.getY())
-				&& (std::sqrt(
-						std::pow(iter->second.getZ() - simpleAvg.getZ(), 2))
-						<= sd.getZ())) {
+		if ((std::sqrt(std::pow(iter->second.getX() - simpleAvg.getX(), 2)) <= sd.getX())
+				&& (std::sqrt(std::pow(iter->second.getY() - simpleAvg.getY(), 2)) <= sd.getY())
+				&& (std::sqrt(std::pow(iter->second.getZ() - simpleAvg.getZ(), 2)) <= sd.getZ())) {
 			cleanPoints.push_back(iter->second);
 		}
 		numberOfPointsProcessed++;
@@ -142,43 +120,35 @@ Point3D CoordinatesCalculator::calculate_exit_point(
 	return {xSum/cleanPoints.size(), ySum/cleanPoints.size(), zSum/cleanPoints.size()};
 }
 
-void CoordinatesCalculator::bgTest(int n, const std::vector<Point3D> &points) {
-	std::cout << "NUMBER OF POINTS: " << points.size() << std::endl;
-	std::vector<std::pair<std::string, std::pair<Point3D, long int>>> testResults;
-	testResults.push_back(runMulti(n, points));
-	testResults.push_back(runRegular(n, points));
-	for (const auto &result : testResults) {
-		std::cout << "Method: " << result.first << ", total time: "
-				<< result.second.second << " ms, calculated point: "
-				<< result.second.first << std::endl;
-	}
-}
-
-std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runMulti(int numberOfPointsToFilter, const std::vector<Point3D> &mappedPointsFromSensor) {
+Point3D CoordinatesCalculator::detectExitCoordianteMulti(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, const bool printsEnabled) {
 	std::map<double, const Point3D> multiMap;
-	const auto parallelStart = std::chrono::system_clock::now();
-	const auto exitPoint = detectExitCoordinate(numberOfPointsToFilter, mappedPointsFromSensor);
-	const auto parallelEnd = std::chrono::system_clock::now();
-	std::cout << "Parallel total: "
-			<< std::chrono::duration_cast<std::chrono::milliseconds>(
-					parallelEnd - parallelStart).count() << std::endl;
-	return std::pair<std::string, std::pair<Point3D, long int>>("MultiThreaded",
-			std::make_pair(exitPoint,
-					std::chrono::duration_cast<std::chrono::milliseconds>(
-							parallelEnd - parallelStart).count()));
+	const size_t nthreads = std::thread::hardware_concurrency();
+	if (printsEnabled) {
+		std::cout << "parallel (" << nthreads << " threads):" << std::endl;
+	}
+
+	std::vector<std::thread> workers(nthreads);
+	const auto startMulti = std::chrono::system_clock::now();
+
+	int batchSize = mappedPointsFromSensor.size() / workers.size();
+	for (int threadNum = 0; threadNum < nthreads; threadNum++) {
+		int startIdex = threadNum * batchSize;
+		int endIndex = startIdex + batchSize;
+		workers.push_back(
+				std::thread(calculate_distance_between_points_in_range,
+						mappedPointsFromSensor, startIdex, endIndex,
+						std::ref(multiMap), threadNum, true, printsEnabled));
+	}
+	for (std::thread &t : workers) {
+		if (t.joinable()) {
+			t.join();
+		}
+	}
+	return calculate_exit_point(multiMap, numberOfPointsToFilter);
 }
 
-std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runRegular(
-		int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
-	const auto singleStart = std::chrono::system_clock::now();
+Point3D CoordinatesCalculator::detectExitCoordianteSingle(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, bool printsEnabled) {
 	std::map<double, const Point3D> singleMap;
-	calculate_distance_between_points_in_range(mappedPointsFromSensor, 0,
-			mappedPointsFromSensor.size(), singleMap, 0, false);
-	const auto single = calculate_exit_point(singleMap, numberOfPointsToFilter);
-	const auto singleEnd = std::chrono::system_clock::now();
-	return std::pair<std::string, std::pair<Point3D, long int>>("Single, Basic",
-			std::make_pair(single,
-					std::chrono::duration_cast<std::chrono::milliseconds>(
-							singleEnd - singleStart).count()));
+	calculate_distance_between_points_in_range(mappedPointsFromSensor, 0, mappedPointsFromSensor.size(), singleMap, 0, false, printsEnabled);
+	return calculate_exit_point(singleMap, numberOfPointsToFilter);
 }

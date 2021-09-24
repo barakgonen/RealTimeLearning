@@ -15,7 +15,9 @@ public:
 	PerformanceCalculator() = delete;
 	virtual ~PerformanceCalculator() = default;
 
-	static void runInLoop(int numberOfLoops, const std::vector<Point3D>& points, const int numberOfPointsToFilter, bool multi, bool single = false);
+	static void runInLoop(int numberOfLoops, const std::vector<Point3D>& points, const int numberOfPointsToFilter, const bool multi, const bool single, bool printsEnabled);
+private:
+	static int measureRuntime(const std::vector<Point3D>& mappedPointsFromSensor, const int numberOfPointsToFilter, bool multi, bool printsEnabled);
 };
 
 #endif /* CORE_CMAKEFILES_PERFORMANCECALCULATOR_H_ */
