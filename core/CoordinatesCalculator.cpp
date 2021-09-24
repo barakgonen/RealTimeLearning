@@ -29,9 +29,7 @@ void calculate_distance_between_points_in_range(
 	for (int point1Index = startIndex; point1Index < endIndex; point1Index++) {
 		rangesSum = 0;
 		auto point1 = pointsInMapping.at(point1Index);
-//		for (int point2Index = startIndex; point2Index < endIndex; point2Index++) {
 		for (const auto &point2 : pointsInMapping) {
-//			const auto& point2 = pointsInMapping.at(point2Index);
 			// Adding the current coordinate range to the main coordinate ranges sum
 			rangesSum += std::sqrt(
 					std::pow(point1.getX() - point2.getX(), 2)
@@ -60,73 +58,10 @@ void calculate_distance_between_points_in_range(
 	}
 }
 
-Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
-	std::cout
-			<< "<CoordinatesCalculator::detectExitCoordinate()> number of points to process: "
-			<< mappedPointsFromSensor.size() << std::endl;
-	// We use map for kind of insertion sort, since it keeps the keys ordered. instead of sorting at the end
-	std::map<double, const Point3D> distanceToPoint;
-	calculate_distance_between_points_in_range(mappedPointsFromSensor, 0,
-			mappedPointsFromSensor.size(), distanceToPoint, 0, false);
-	std::cout << "Single threaded map size after first calculation is: "
-			<< distanceToPoint.size() << std::endl;
-	return calculate_exit_point(distanceToPoint, numberOfPointsToFilter);
-}
-
-Point3D CoordinatesCalculator::detectExitCoordinateParallelized(
-		int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
-	std::cout
-			<< "<CoordinatesCalculator::detectExitCoordinateParallelized()> number of points to process: "
-			<< mappedPointsFromSensor.size() << std::endl;
-	// We use map for kind of insertion sort, since it keeps the keys ordered. instead of sorting at the end
-	std::map<double, const Point3D> distanceToPoint;
-	const size_t nthreads = std::thread::hardware_concurrency();
-	std::cout << "parallel (" << nthreads << " threads):" << std::endl;
-	std::vector<std::thread> workers(nthreads);
-	const auto startMulti = std::chrono::system_clock::now();
-
-	int batchSize = mappedPointsFromSensor.size() / workers.size();
-	for (int threadNum = 0; threadNum < nthreads; threadNum++) {
-		int startIdex = threadNum * batchSize;
-		int endIndex = startIdex + batchSize;
-		workers.push_back(
-				std::thread(calculate_distance_between_points_in_range,
-						mappedPointsFromSensor, startIdex, endIndex,
-						std::ref(distanceToPoint), threadNum, true));
-	}
-	for (std::thread &t : workers) {
-		if (t.joinable()) {
-			t.join();
-		}
-	}
-	std::cout << "multi threaded map size after first calculation is: "
-			<< distanceToPoint.size() << std::endl;
-	return calculate_exit_point(distanceToPoint, numberOfPointsToFilter);
-}
-
-void CoordinatesCalculator::bgTest(int n, const std::vector<Point3D> &points) {
-	std::cout << "NUMBER OF POINTS: " << points.size() << std::endl;
-	std::vector<std::pair<std::string, std::pair<Point3D, long int>>> testResults;
-	testResults.push_back(runMulti(n, points));
-	testResults.push_back(runCached(n, points));
-	testResults.push_back(runRegular(n, points));
-	for (const auto &result : testResults) {
-		std::cout << "Method: " << result.first << ", total time: "
-				<< result.second.second << " ms, calculated point: "
-				<< result.second.first << std::endl;
-	}
-}
-
-std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runMulti(
-		int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
+Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor) {
 	std::map<double, const Point3D> multiMap;
 	const size_t nthreads = std::thread::hardware_concurrency();
 	std::cout << "parallel (" << nthreads << " threads):" << std::endl;
-	const auto parallelStart = std::chrono::system_clock::now();
-	// func
 	std::vector<std::thread> workers(nthreads);
 	const auto startMulti = std::chrono::system_clock::now();
 
@@ -144,47 +79,7 @@ std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runM
 			t.join();
 		}
 	}
-	const auto parallel = calculate_exit_point(multiMap,
-			numberOfPointsToFilter);
-	const auto parallelEnd = std::chrono::system_clock::now();
-	std::cout << "Parallel total: "
-			<< std::chrono::duration_cast<std::chrono::milliseconds>(
-					parallelEnd - parallelStart).count() << std::endl;
-	return std::pair<std::string, std::pair<Point3D, long int>>("MultiThreaded",
-			std::make_pair(parallel,
-					std::chrono::duration_cast<std::chrono::milliseconds>(
-							parallelEnd - parallelStart).count()));
-}
-
-std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runCached(
-		int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
-	const auto cacheStart = std::chrono::system_clock::now();
-	const auto cached = detectExitCoordinateCache(numberOfPointsToFilter,
-			mappedPointsFromSensor);
-	const auto cacheEnd = std::chrono::system_clock::now();
-	std::cout << "cache total: "
-			<< std::chrono::duration_cast<std::chrono::milliseconds>(
-					cacheEnd - cacheStart).count() << std::endl;
-	return std::pair<std::string, std::pair<Point3D, long int>>("Cached",
-			std::make_pair(cached,
-					std::chrono::duration_cast<std::chrono::milliseconds>(
-							cacheEnd - cacheStart).count()));
-}
-
-std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runRegular(
-		int numberOfPointsToFilter,
-		const std::vector<Point3D> &mappedPointsFromSensor) {
-	const auto singleStart = std::chrono::system_clock::now();
-	std::map<double, const Point3D> singleMap;
-	calculate_distance_between_points_in_range(mappedPointsFromSensor, 0,
-			mappedPointsFromSensor.size(), singleMap, 0, false);
-	const auto single = calculate_exit_point(singleMap, numberOfPointsToFilter);
-	const auto singleEnd = std::chrono::system_clock::now();
-	return std::pair<std::string, std::pair<Point3D, long int>>("Single, Basic",
-			std::make_pair(single,
-					std::chrono::duration_cast<std::chrono::milliseconds>(
-							singleEnd - singleStart).count()));
+	return calculate_exit_point(multiMap, numberOfPointsToFilter);
 }
 
 Point3D CoordinatesCalculator::calculate_exit_point(
@@ -247,97 +142,43 @@ Point3D CoordinatesCalculator::calculate_exit_point(
 	return {xSum/cleanPoints.size(), ySum/cleanPoints.size(), zSum/cleanPoints.size()};
 }
 
-void CoordinatesCalculator::insert_caching(const Point3D &point1,
-		const Point3D &point2, double range,
-		std::map<Point3D, std::map<Point3D, double>> &cache) {
-	// insert to existing map
-	if (cache.find(point1) != cache.end()) {
-		cache.at(point1).insert(std::make_pair(point2, range));
-	} else {
-		// insert new key to cache map
-		cache.insert(
-				std::pair<Point3D, std::map<Point3D, double> >(point1,
-						std::map<Point3D, double>()));
-		cache.at(point1).insert(std::pair<Point3D, double>(point2, range));
+void CoordinatesCalculator::bgTest(int n, const std::vector<Point3D> &points) {
+	std::cout << "NUMBER OF POINTS: " << points.size() << std::endl;
+	std::vector<std::pair<std::string, std::pair<Point3D, long int>>> testResults;
+	testResults.push_back(runMulti(n, points));
+	testResults.push_back(runRegular(n, points));
+	for (const auto &result : testResults) {
+		std::cout << "Method: " << result.first << ", total time: "
+				<< result.second.second << " ms, calculated point: "
+				<< result.second.first << std::endl;
 	}
 }
 
-Point3D CoordinatesCalculator::detectExitCoordinateCache(int n,
-		const std::vector<Point3D> &pointsInMapping) {
-	int startIndex = 0;
-	int endIndex = pointsInMapping.size();
-	int threadNumber = 0;
-	bool isMulti = false;
-	std::map<double, const Point3D> distanceToPoint;
-	std::cout
-			<< "<CoordinatesCalculator::detectExitCoordinateCache()> start index = "
-			<< startIndex << ", end index = " << endIndex
-			<< ", thread number = " << threadNumber << ", is multi? "
-			<< std::boolalpha << isMulti << std::endl;
-	std::map<Point3D, std::map<Point3D, double>> cache;
+std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runMulti(int numberOfPointsToFilter, const std::vector<Point3D> &mappedPointsFromSensor) {
+	std::map<double, const Point3D> multiMap;
+	const auto parallelStart = std::chrono::system_clock::now();
+	const auto exitPoint = detectExitCoordinate(numberOfPointsToFilter, mappedPointsFromSensor);
+	const auto parallelEnd = std::chrono::system_clock::now();
+	std::cout << "Parallel total: "
+			<< std::chrono::duration_cast<std::chrono::milliseconds>(
+					parallelEnd - parallelStart).count() << std::endl;
+	return std::pair<std::string, std::pair<Point3D, long int>>("MultiThreaded",
+			std::make_pair(exitPoint,
+					std::chrono::duration_cast<std::chrono::milliseconds>(
+							parallelEnd - parallelStart).count()));
+}
 
-	int totalEquals = 0;
-	int totalCacls = 0;
-	double rangesSum = 0;
-
-	for (const auto point1 : pointsInMapping) {
-		rangesSum = 0;
-		for (const auto &point2 : pointsInMapping) {
-			if (point1 == point2) {
-				totalEquals++;
-			} else {
-				//			if (cache.find(point1) != cache.end()) {
-				//				// Point 1 is in cache
-				//			} else if (cache.find(point2) != cache.end()){
-				//
-				//			} else {
-				//				// need to calculate distance from point 1 to point 2, and vice versa and store in map for future calculations
-				//			}
-				/*	if (cache.find(point2) != cache.end()
-				 && cache.at(point2).find(point1)
-				 != cache.at(point2).end()) {
-				 //				std::cout << "reducing by cache, point1 found" << std::endl;
-				 rangesSum += cache.at(point2).find(point1)->second;
-				 } else if (cache.find(point1) != cache.end()
-				 && cache.at(point1).find(point2)
-				 != cache.at(point1).end()) {
-				 std::cout << "reducing by cache, point2 found" << std::endl;
-				 rangesSum += cache.at(point1).find(point2)->second;
-				 } else {
-				 //				std::cout << "calculation is in process, calculating distance from p1 to p2 which is equal to p2 to p1" << std::endl;*/
-				double range = point1.getDistance(point2);
-				// insert to existing map
-				/*insert_caching(point1, point2, range, cache);
-				 insert_caching(point2, point1, range, cache);*/
-
-				rangesSum += range;
-				totalCacls++;
-			}
-		}
-//		if (distanceToPoint.size() % 1000 == 0) {
-//			if (isMulti) {
-//				std::cout
-//						<< "<CoordinatesCalculator::detectExitCoordinateCache()> Thread num: "
-//						<< threadNumber << ", " << distanceToPoint.size()
-//						<< " coordinates has been processed." << std::endl;
-//
-//			} else {
-//				std::cout
-//						<< "<CoordinatesCalculator::detectExitCoordinateCache()> "
-//						<< distanceToPoint.size()
-//						<< " coordinates has been processed." << std::endl;
-//			}
-//		}
-
-		distanceToPoint.insert(std::pair<double, const Point3D>(rangesSum, point1));
-	}
-	std::cout
-			<< "<CoordinatesCalculator::detectExitCoordinateCache()> BGBG!!! size of distanceToPoint map is: "
-			<< distanceToPoint.size() << ", and cache: " << cache.size()
-			<< std::endl;
-	std::cout
-			<< "<CoordinatesCalculator::detectExitCoordinateCache()> Total equals: "
-			<< totalEquals << ", out of: " << totalCacls << std::endl;
-
-	return calculate_exit_point(distanceToPoint, n);
+std::pair<std::string, std::pair<Point3D, long int>> CoordinatesCalculator::runRegular(
+		int numberOfPointsToFilter,
+		const std::vector<Point3D> &mappedPointsFromSensor) {
+	const auto singleStart = std::chrono::system_clock::now();
+	std::map<double, const Point3D> singleMap;
+	calculate_distance_between_points_in_range(mappedPointsFromSensor, 0,
+			mappedPointsFromSensor.size(), singleMap, 0, false);
+	const auto single = calculate_exit_point(singleMap, numberOfPointsToFilter);
+	const auto singleEnd = std::chrono::system_clock::now();
+	return std::pair<std::string, std::pair<Point3D, long int>>("Single, Basic",
+			std::make_pair(single,
+					std::chrono::duration_cast<std::chrono::milliseconds>(
+							singleEnd - singleStart).count()));
 }

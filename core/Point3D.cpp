@@ -13,6 +13,7 @@ Point3D::Point3D(const double _x, const double _y, const double _z)
 : x { _x }
 , y { _y }
 , z { _z }
+, hash {x * y * z}
 {
 }
 
@@ -25,7 +26,7 @@ Point3D::Point3D(const Eigen::Matrix<double, 3, 1> &eigenPoint)
 
 bool Point3D::operator<(const Point3D &rhs) const {
 //	return x < rhs.x || (x == rhs.x && (y < rhs.y || (y == rhs.y && z < rhs.z)));
-	return x <= rhs.x && y <= rhs.y && z <= rhs.z;
+	return hash <= rhs.getHash();
 }
 
 double Point3D::getX() const {
@@ -42,6 +43,10 @@ bool Point3D::operator ==(const Point3D &rhs) const {
 
 double Point3D::getZ() const {
 	return z;
+}
+
+double Point3D::getHash() const {
+	return hash;
 }
 
 std::ostream& operator<<(std::ostream& os, const Point3D& dt) {

@@ -26,11 +26,13 @@ public:
     double getY() const;
     double getZ() const;
     double getDistance(const Point3D& point2) const;
+    double getHash() const;
 
 private:
-    double x;
-    double y;
-    double z;
+    const double x;
+    const double y;
+    const double z;
+    const double hash;
 };
 
 #endif /* CORE_POINT3D_H_ */

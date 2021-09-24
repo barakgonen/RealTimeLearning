@@ -56,20 +56,16 @@ void sendACommand(Tello &tello, const std::string &command) {
 	std::cout << "received response " << std::endl;
 }
 
-Point3D getExitCoordinates(const std::vector<Point3D> &PointsVector) {
-	CoordinatesCalculator calculator;
-	return calculator.detectExitCoordinate(60, PointsVector);
-}
-
 int main(int argc, char **argv) {
 	const auto map = read_csv("/home/barakg/Downloads/Barak3.csv");
+	int numberOfPointsForFiltering = 60;
 
 	std::vector<Point3D> covertedVector;
 	for (const auto& val : map) {
 		covertedVector.push_back({val});
 	}
-	CoordinatesCalculator calloc;
-	calloc.bgTest(60, covertedVector);
+
+	CoordinatesCalculator::bgTest(numberOfPointsForFiltering, covertedVector);
 
 	return 0;
 	Tello tello { };
@@ -155,6 +151,7 @@ int main(int argc, char **argv) {
 					tello.SendCommand("land");
 					tello.SendCommand("emergency");
 
+//					CoordinatesCalculator::detectExitCoordinate(60, PointsVector);
 //					auto pointsVector = saveMapToFile(slam);
 //					std::cout << "Map saved" << std::endl;
 //
