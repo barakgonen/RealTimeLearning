@@ -17,6 +17,10 @@ target_sources(core PRIVATE
         			Point3D.h
         			Point3D.cpp
         			Utils.h
+        			PerformanceCalculator.h
+        			PerformanceCalculator.cpp
+        			PerformanceTester.h
+        			PerformanceTester.cpp
 )
 target_include_directories(core
     PUBLIC
