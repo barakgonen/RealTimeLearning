@@ -11,6 +11,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "../core/CoordinatesCalculator.h"
+#include "../core/PerformanceCalculator.h"
 #include "../core/Utils.h"
 #include "../drone_lib/include/ctello.h"
 
@@ -64,8 +65,11 @@ int main(int argc, char **argv) {
 	for (const auto& val : map) {
 		covertedVector.push_back({val});
 	}
+	int numberOfLoops = 1;
+	bool shouldTestMulti = true;
+	bool shouldTestSingle = false;
 
-	CoordinatesCalculator::bgTest(numberOfPointsForFiltering, covertedVector);
+	PerformanceCalculator::runInLoop(numberOfLoops, covertedVector, numberOfPointsForFiltering, shouldTestMulti, shouldTestSingle);
 
 	return 0;
 	Tello tello { };
