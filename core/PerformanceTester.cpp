@@ -13,7 +13,7 @@
 #include <iostream>
 #include "Utils.h"
 
-PerformanceTester::PerformanceTester(bool _isLoggerOn, const int _numberOfPointsForFiltering, bool _testMultiThreaded, const char** argv, int argc)
+PerformanceTester::PerformanceTester(bool _isLoggerOn, const int _numberOfPointsForFiltering, bool _testMultiThreaded, char** argv, int argc)
 : isLoggerOn{isLoggerOn}
 , numberOfPointsForFiltering{numberOfPointsForFiltering}
 , numberOfLoops{stringToInt(argv[6])}

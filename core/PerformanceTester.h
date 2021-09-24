@@ -13,7 +13,7 @@
 
 class PerformanceTester {
 public:
-	PerformanceTester(bool isLoggerOn, const int numberOfPointsForFiltering, bool testMultiThreaded, const char** argv, int argc);
+	PerformanceTester(bool isLoggerOn, const int numberOfPointsForFiltering, bool testMultiThreaded, char** argv, int argc);
 	virtual ~PerformanceTester() = default;
 	void run();
 
