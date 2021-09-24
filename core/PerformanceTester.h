@@ -9,24 +9,27 @@
 #define CORE_PERFORMANCETESTER_H_
 #include <string>
 #include <vector>
+
+#include "AbstractActivityHandler.h"
 #include "Point3D.h"
 
-class PerformanceTester {
+class PerformanceTester : public AbstractActivityHandler {
 public:
-	PerformanceTester(bool isLoggerOn, const int numberOfPointsForFiltering, bool testMultiThreaded, char** argv, int argc);
+	PerformanceTester(const std::vector<std::string>& config);
 	virtual ~PerformanceTester() = default;
-	void run();
+
+	void run() override;
 
 private:
 	std::vector<Point3D> read_csv() const;
+	void exportRawDataToFile(const std::vector<Point3D> pointsVec);
+	void runInLoop(const std::vector<Point3D>& mappedPointsFromSensor);
+	int measureRuntime(const std::vector<Point3D>& mappedPointsFromSensor, const int numberOfPointsToFilter, bool multi, bool printsEnabled);
 
-	const bool isLoggerOn;
-	const int numberOfPointsForFiltering;
-	const int numberOfLoops;
-	const bool testMultithreded;
 	const bool testSingleThreaded;
-	const std::string& inputFilePath;
-	const std::string& outputFilePath;
+	const int numberOfLoops;
+	std::string inputFilePath;
+	std::string outputFilePath;
 };
 
 #endif /* CORE_PERFORMANCETESTER_H_ */

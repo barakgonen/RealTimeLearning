@@ -16,11 +16,12 @@ target_sources(core PRIVATE
         			CoordinatesCalculator.cpp
         			Point3D.h
         			Point3D.cpp
-        			Utils.h
-        			PerformanceCalculator.h
-        			PerformanceCalculator.cpp
         			PerformanceTester.h
         			PerformanceTester.cpp
+        			DronePilot.h
+        			DronePilot.cpp
+        			AbstractActivityHandler.h
+        			AbstractActivityHandler.cpp
 )
 target_include_directories(core
     PUBLIC

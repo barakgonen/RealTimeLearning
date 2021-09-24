@@ -15,6 +15,8 @@
 //  along with this program.  If not, see <https://www.gnu.org/licenses/>
 //
 //  You can contact the author via carlospzlz@gmail.com
+#ifndef DRONE_LIB_H_
+#define DRONE_LIB_H_
 
 #include <boost/optional/optional.hpp>
 #include <sys/socket.h>
@@ -71,4 +73,4 @@ private:
     sockaddr_storage m_tello_server_command_addr{};
 };
 }  // namespace ctello
-
+#endif /* DRONE_LIB_H_ */

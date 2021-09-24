@@ -6,21 +6,20 @@
  */
 
 #include "PerformanceTester.h"
+
+#include <chrono>
 #include <iosfwd>
 #include <fstream>
 
-#include "PerformanceCalculator.h"
 #include <iostream>
-#include "Utils.h"
+#include "CoordinatesCalculator.h"
 
-PerformanceTester::PerformanceTester(bool _isLoggerOn, const int _numberOfPointsForFiltering, bool _testMultiThreaded, char** argv, int argc)
-: isLoggerOn{isLoggerOn}
-, numberOfPointsForFiltering{numberOfPointsForFiltering}
-, numberOfLoops{stringToInt(argv[6])}
-, testMultithreded{_testMultiThreaded}
-, testSingleThreaded{stringToBool(argv[5])}
-, inputFilePath{argc > 7 ? argv[7] : "/local/RealTimeLearning/input_example.csv"}
-, outputFilePath{argc > 8 ? argv[8] : "/local/RealTimeLearning/output_example.csv"}
+PerformanceTester::PerformanceTester(const std::vector<std::string>& config)
+: AbstractActivityHandler{config}
+, numberOfLoops{stringToInt(config[5])}
+, testSingleThreaded{stringToBool(config[4])}
+, inputFilePath{config.size() <= 6 ? "/local/RealTimeLearning/input_example.csv" : config[6]}
+, outputFilePath{config.size() < 7 ? "/local/RealTimeLearning/output_example.csv" : config[7]}
 {
 	std::cout << "testSingleThreaded: " << std::boolalpha << testSingleThreaded << std::endl;
 	std::cout << "numberOfLoops: " << numberOfLoops << std::endl;
@@ -33,8 +32,19 @@ void PerformanceTester::run()
 	std::cout << "<PerformanceTester::run()> perfomance tester is running!" << std::endl;
 	const auto mappedPointsFromFile = read_csv();
 	std::cout << "<PerformanceTester::run()> all data read from CSV succussfully!" << std::endl;
-//	PerformanceCalculator::runInLoop(numberOfLoops, mappedPointsFromFile, numberOfPointsToFilter, multi, single, printsEnabled);
+	runInLoop(mappedPointsFromFile);
 	std::cout << "<PerformanceTester::run()> test finished, writing to output file" << std::endl;
+
+
+}
+
+void PerformanceTester::exportRawDataToFile(const std::vector<Point3D> pointsVec) {
+	std::ofstream pointData;
+	pointData.open(outputFilePath);
+	for (const auto& p : pointsVec) {
+		pointData << p.getX() << "," << p.getY() << "," << p.getZ() << std::endl;
+	}
+	pointData.close();
 }
 
 /**
@@ -86,3 +96,66 @@ std::vector<Point3D> PerformanceTester::read_csv() const {
     myFile.close();
     return result;
 }
+
+void PerformanceTester::runInLoop(const std::vector<Point3D>& mappedPointsFromSensor) {
+	std::cout << "NUMBER OF POINTS: " << mappedPointsFromSensor.size() << std::endl;
+	long long int totalSingleRuntime = 0;
+	long long int totalMultiRuntime = 0;
+
+	for (int i = 1; i <= numberOfLoops; i++) {
+		if (isMulti) {
+			if (testSingleThreaded) {
+				// testing both multi and single
+				totalMultiRuntime += measureRuntime(mappedPointsFromSensor, numberOfPointsForFiltering, isMulti, isLoggerOn);
+				totalSingleRuntime += measureRuntime(mappedPointsFromSensor, numberOfPointsForFiltering, false, isLoggerOn);
+			} else {
+				// testing multi only
+					totalMultiRuntime += measureRuntime(mappedPointsFromSensor, numberOfPointsForFiltering, isMulti, isLoggerOn);
+				}
+		} else {
+			if (testSingleThreaded) {
+				// single only
+				totalSingleRuntime += measureRuntime(mappedPointsFromSensor, numberOfPointsForFiltering, false, isLoggerOn);
+			} else {
+				std::cout << "Must choose at least one true flag, multi or single. current config: " << std::boolalpha << " multi: " << isMulti << ", testSingleThreaded: " << testSingleThreaded << std::endl;
+			}
+		}
+
+		std::cout << "Iteration: " << i << " of: " << numberOfLoops << " has completed! ";
+		if (isMulti) {
+				if (testSingleThreaded) {
+					std::cout << "current avg single: " << (double)(totalSingleRuntime / i) << std::endl;
+					std::cout << "current avg multi: " << (double)(totalMultiRuntime / i) << std::endl;
+				} else {
+					std::cout << "current avg multi: " << (double)(totalMultiRuntime / i) << std::endl;
+				}
+			} else {
+				if (testSingleThreaded) {
+					// single only
+					std::cout << "current avg single: " << (double)(totalSingleRuntime / i) << std::endl;
+				}
+			}
+	}
+
+	std::cout << "Conclusion: [number of runs: " << numberOfLoops << "]" << std::endl;
+	if (isMulti) {
+		if (testSingleThreaded) {
+			std::cout << "Single total time: " << totalSingleRuntime << ", avg: " << (double)(totalSingleRuntime / numberOfLoops) << std::endl;
+			std::cout << "multi total time: " << totalMultiRuntime << ", avg: " << (double)(totalMultiRuntime / numberOfLoops) << std::endl;
+		} else {
+			std::cout << "multi total time: " << totalMultiRuntime << ", avg: " << (double)(totalMultiRuntime / numberOfLoops) << std::endl;
+		}
+	} else {
+		if (testSingleThreaded) {
+			// single only
+			std::cout << "Single total time: " << totalSingleRuntime << ", avg: " << (double)(totalSingleRuntime / numberOfLoops) << std::endl;
+		}
+	}
+}
+
+int PerformanceTester::measureRuntime(const std::vector<Point3D>& mappedPointsFromSensor, const int numberOfPointsToFilter, bool multi, bool printsEnabled) {
+	const auto startTime = std::chrono::system_clock::now();
+	const auto exitPoint = CoordinatesCalculator::detectExitCoordinate(numberOfPointsToFilter, mappedPointsFromSensor, multi, printsEnabled);
+	return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now() - startTime).count();
+}
+
