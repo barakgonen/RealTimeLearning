@@ -14,6 +14,8 @@ add_library(core::core ALIAS ${library_name})
 target_sources(core PRIVATE
         			CoordinatesCalculator.h
         			CoordinatesCalculator.cpp
+        			Point3D.h
+        			Point3D.cpp
         			Utils.h
 )
 target_include_directories(core

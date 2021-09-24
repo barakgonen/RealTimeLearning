@@ -198,32 +198,32 @@ CoordinatesCalculator.cpp.s:
 	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/CoordinatesCalculator.cpp.s
 .PHONY : CoordinatesCalculator.cpp.s
 
-Point.o: Point.cpp.o
+Point3D.o: Point3D.cpp.o
 
-.PHONY : Point.o
+.PHONY : Point3D.o
 
 # target to build an object file
-Point.cpp.o:
-	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point.cpp.o
-.PHONY : Point.cpp.o
+Point3D.cpp.o:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point3D.cpp.o
+.PHONY : Point3D.cpp.o
 
-Point.i: Point.cpp.i
+Point3D.i: Point3D.cpp.i
 
-.PHONY : Point.i
+.PHONY : Point3D.i
 
 # target to preprocess a source file
-Point.cpp.i:
-	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point.cpp.i
-.PHONY : Point.cpp.i
+Point3D.cpp.i:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point3D.cpp.i
+.PHONY : Point3D.cpp.i
 
-Point.s: Point.cpp.s
+Point3D.s: Point3D.cpp.s
 
-.PHONY : Point.s
+.PHONY : Point3D.s
 
 # target to generate assembly for a file
-Point.cpp.s:
-	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point.cpp.s
-.PHONY : Point.cpp.s
+Point3D.cpp.s:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/Point3D.cpp.s
+.PHONY : Point3D.cpp.s
 
 # Help Target
 help:
@@ -241,9 +241,9 @@ help:
 	@echo "... CoordinatesCalculator.o"
 	@echo "... CoordinatesCalculator.i"
 	@echo "... CoordinatesCalculator.s"
-	@echo "... Point.o"
-	@echo "... Point.i"
-	@echo "... Point.s"
+	@echo "... Point3D.o"
+	@echo "... Point3D.i"
+	@echo "... Point3D.s"
 .PHONY : help
 
 

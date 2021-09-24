@@ -56,12 +56,22 @@ void sendACommand(Tello &tello, const std::string &command) {
 	std::cout << "received response " << std::endl;
 }
 
-POINT getExitCoordinates(const std::vector<POINT> &PointsVector) {
+Point3D getExitCoordinates(const std::vector<Point3D> &PointsVector) {
 	CoordinatesCalculator calculator;
 	return calculator.detectExitCoordinate(60, PointsVector);
 }
 
 int main(int argc, char **argv) {
+	const auto map = read_csv("/home/barakg/Downloads/Barak3.csv");
+
+	std::vector<Point3D> covertedVector;
+	for (const auto& val : map) {
+		covertedVector.push_back({val});
+	}
+	CoordinatesCalculator calloc;
+	calloc.bgTest(60, covertedVector);
+
+	return 0;
 	Tello tello { };
 	if (!tello.Bind()) {
 		return 0;
@@ -145,13 +155,13 @@ int main(int argc, char **argv) {
 					tello.SendCommand("land");
 					tello.SendCommand("emergency");
 
-					auto pointsVector = saveMapToFile(slam);
-					std::cout << "Map saved" << std::endl;
-
-					POINT exitCoordinate = getExitCoordinates(pointsVector);
-					std::cout << "flying to x = " << exitCoordinate.x()
-							<< ", y = " << exitCoordinate.y() << ", z = "
-							<< exitCoordinate.z() << std::endl;
+//					auto pointsVector = saveMapToFile(slam);
+//					std::cout << "Map saved" << std::endl;
+//
+//					Point3D exitCoordinate = getExitCoordinates(pointsVector);
+//					std::cout << "flying to x = " << exitCoordinate.x
+//							<< ", y = " << exitCoordinate.y() << ", z = "
+//							<< exitCoordinate.z() << std::endl;
 				}
 			});
 

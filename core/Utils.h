@@ -72,15 +72,15 @@ std::vector<Eigen::Matrix<double, 3, 1>> read_csv(std::string filename){
     return result;
 }
 
-std::vector<POINT> saveMapToFile(ORB_SLAM2::System &SLAM) {
+std::vector<Eigen::Matrix<double, 3, 1>> saveMapToFile(ORB_SLAM2::System &SLAM) {
     std::vector<ORB_SLAM2::MapPoint *> mapPoints = SLAM.GetMap()->GetAllMapPoints();
     std::ofstream pointData;
     pointData.open("/tmp/RoomCoordiantes.csv");
-    std::vector<POINT> pointsVector;
+    std::vector<Eigen::Matrix<double, 3, 1>> pointsVector;
     for (auto p: mapPoints) {
         if (p != NULL) {
             auto point = p->GetWorldPos();
-            POINT v = ORB_SLAM2::Converter::toVector3d(point);
+            Eigen::Matrix<double, 3, 1> v = ORB_SLAM2::Converter::toVector3d(point);
             pointData << v.x() << "," << v.y() << "," << v.z() << std::endl;
             pointsVector.push_back(v);
         }
@@ -99,6 +99,5 @@ double funcTimeMillis(F func, Args&&... args){
     const auto end = std::chrono::system_clock::now();
     return duration(end - start);
 }
-
 
 #endif /* CORE_UTILS_H_ */
