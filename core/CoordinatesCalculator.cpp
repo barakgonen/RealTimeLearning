@@ -67,6 +67,7 @@ Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter, 
 
 Point3D CoordinatesCalculator::calculate_exit_point(
 		const std::map<double, const Point3D> &distanceToPoint, int n) {
+	std::cout << "Number of points in map: " << distanceToPoint.size() << std::endl;
 	int numberOfPointsProcessed = 0;
 	double xSum, ySum, zSum = 0;
 
@@ -116,6 +117,11 @@ Point3D CoordinatesCalculator::calculate_exit_point(
 		zSum += p.getZ();
 	}
 
+	std::cout << "Clean points size: " << cleanPoints.size() << std::endl;
+	if (cleanPoints.size() == 0)
+	{
+		return simpleAvg;
+	}
 	// Averaging the final sum and constructing exit point
 	return {xSum/cleanPoints.size(), ySum/cleanPoints.size(), zSum/cleanPoints.size()};
 }

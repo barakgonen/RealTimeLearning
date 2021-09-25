@@ -15,8 +15,6 @@
 #include "Point3D.h"
 
 using ctello::Tello;
-using ORB_SLAM2::System;
-using cv::VideoCapture;
 
 class DronePilot : public AbstractActivityHandler {
 public:
@@ -27,11 +25,10 @@ public:
 
 private:
 	void sendACommand(const std::string &command);
-	std::vector<Point3D> transformMapFromSlamToRegularPoint();
+	std::vector<Point3D> transformMapFromSlamToRegularPoint(ORB_SLAM2::System& slam);
 	const std::string telloStreamUrl;
-	ctello::Tello tello;
-	ORB_SLAM2::System slam;
-	cv::VideoCapture capture;
+    cv::Mat slamMatrix;
+    ctello::Tello tello;
 };
 
 #endif /* CORE_DRONEPILOT_H_ */
