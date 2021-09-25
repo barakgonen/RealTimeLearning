@@ -12,18 +12,29 @@
 
 #include "../orb_slam/include/System.h"
 #include "../drone_lib/include/ctello.h"
+#include "../orb_slam/include/Converter.h"
+#include "../orb_slam/include/Map.h"
+#include "../orb_slam/include/MapPoint.h"
+#include "CoordinatesCalculator.h"
+#include "Point3D.h"
 
 using ctello::Tello;
 using cv::VideoCapture;
 using cv::VideoCaptureAPIs::CAP_FFMPEG;
 using ORB_SLAM2::System;
 using ctello::Tello;
+using ORB_SLAM2::Map;
+using ORB_SLAM2::MapPoint;
 
 DronePilot::DronePilot(const std::vector<std::string>& params)
 : AbstractActivityHandler{params}
 , telloStreamUrl{"udp://0.0.0.0:11111?overrun_nonfatal=1&fifo_size=50000000"}
+, slam {"/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt", "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::MONOCULAR, true}
+, capture { telloStreamUrl, CAP_FFMPEG }
 {
-	// TODO Auto-generated constructor stub
+	capture.set(CV_CAP_PROP_BUFFERSIZE, 5);
+	double fps = capture.get(CV_CAP_PROP_FPS);
+	std::cout << "Fps rate: " << fps << std::endl;
 
 }
 
@@ -47,21 +58,12 @@ void DronePilot::run() {
 	sendACommand("streamon");
 	sendACommand("speed 30");
 
-	System slam(
-			"/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt",
-			"/local/RealTimeLearning/orb_slam/config/TELLO.yaml",
-			ORB_SLAM2::System::MONOCULAR, true);
-
 	std::cout << "tello streaming started" << std::endl;
 
-	// Set to whatever video source
-	VideoCapture capture { telloStreamUrl, CAP_FFMPEG };
-	capture.set(CV_CAP_PROP_BUFFERSIZE, 5);
-	double fps = capture.get(CV_CAP_PROP_FPS);
 	bool lostTracking = false;
 	bool droneLanded = false;
 	int frameCount = 0;
-	std::cout << fps << std::endl;
+
 
 	// Drone control thread
 	std::thread t([&]() {
@@ -102,8 +104,17 @@ void DronePilot::run() {
 			sendACommand("ccw 30");
 
 			//Wait
-			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+//			std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 		}
+
+
+		std::cout << "calculating exit point" << std::endl;
+		auto pointsVector = transformMapFromSlamToRegularPoint();
+		auto exitPoint = CoordinatesCalculator::detectExitCoordinate(numberOfPointsForFiltering, pointsVector, isMulti, isLoggerOn);
+
+		std::cout << "flying to x = " << exitPoint.getX() << ", y = " << exitPoint.getY() << ", z = " << exitPoint.getZ() << std::endl;
+
+		sendACommand("go -" + exitPoint.getY() + " -" + exitPoint.getX() + " 0 20");
 
 		// take off
 		sendACommand("land");
@@ -118,15 +129,6 @@ void DronePilot::run() {
 					std::cout << "EMERGENCYYYY" << std::endl;
 					sendACommand("land");
 					sendACommand("emergency");
-
-//					CoordinatesCalculator::detectExitCoordinate(60, PointsVector);
-//					auto pointsVector = saveMapToFile(slam);
-//					std::cout << "Map saved" << std::endl;
-//
-//					Point3D exitCoordinate = getExitCoordinates(pointsVector);
-//					std::cout << "flying to x = " << exitCoordinate.x
-//							<< ", y = " << exitCoordinate.y() << ", z = "
-//							<< exitCoordinate.z() << std::endl;
 				}
 			});
 
@@ -154,4 +156,16 @@ void DronePilot::run() {
 	 sendACommand(tello, "land");
 	 });*/
 
+}
+
+std::vector<Point3D> DronePilot::transformMapFromSlamToRegularPoint() {
+    std::vector<Point3D> pointsVector;
+    for (auto p: slam.GetMap()->GetAllMapPoints()) {
+        if (p != NULL) {
+            auto point = p->GetWorldPos();
+            pointsVector.push_back({ORB_SLAM2::Converter::toVector3d(p->GetWorldPos())});
+        }
+    }
+
+    return pointsVector;
 }

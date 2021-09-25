@@ -59,14 +59,15 @@ int main(int argc, char **argv) {
 	for (int i = 1; i < argc; i++)
 		arguments.push_back(argv[i]);
 
-	bool isTestMode = AbstractActivityHandler::stringToBool(arguments[3]);
+	bool isTestMode = AbstractActivityHandler::stringToBool(arguments[2]);
+	AbstractActivityHandler* activity;
 	if (isTestMode) {
-			PerformanceTester tester{arguments};
-			tester.run();
-		} else {
-			DronePilot pilot{arguments};
-			pilot.run();
+		activity = new PerformanceTester{arguments};
+	} else {
+		activity = new DronePilot{arguments};
 	}
+
+	activity->run();
 
 	return 0;
 }
