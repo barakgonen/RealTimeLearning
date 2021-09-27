@@ -25,6 +25,8 @@ public:
 
 private:
 	void sendACommand(const std::string &command);
+    void exportCalculatedResultsToFile(const std::pair<Point3D, Point3D>& points);
+    void exportAllPointsToFile(const std::vector<Point3D>& pointsVec);
 	std::vector<Point3D> transformMapFromSlamToRegularPoint(ORB_SLAM2::System& slam);
 	const std::string telloStreamUrl;
     cv::Mat slamMatrix;

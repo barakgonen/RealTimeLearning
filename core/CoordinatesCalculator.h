@@ -18,6 +18,8 @@ public:
 	CoordinatesCalculator() = delete;
 	virtual ~CoordinatesCalculator() = default;
 	static Point3D detectExitCoordinate(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, bool isMulti, const bool printsEnabled);
+    static std::pair<Point3D, Point3D> detectExitCoordinateWithSd(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, bool isMulti, const bool printsEnabled);
+
 private:
 	static Point3D calculate_exit_point(const std::map<double, const Point3D>& mappedPoints, int numberOfPointsToFilter);
 	static Point3D detectExitCoordianteMulti(int numberOfPointsToFilter, const std::vector<Point3D>& mappedPointsFromSensor, const bool printsEnabled);
