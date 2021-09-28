@@ -54,7 +54,7 @@ void DronePilot::run() {
     ORB_SLAM2::System slam{"/local/RealTimeLearning/orb_slam/Vocabulary/ORBvoc.txt",
                            "/local/RealTimeLearning/orb_slam/config/TELLO.yaml", ORB_SLAM2::System::MONOCULAR, true};
     cv::VideoCapture capture{telloStreamUrl, CAP_FFMPEG};
-    capture.set(CV_CAP_PROP_BUFFERSIZE, 5);
+    capture.set(CV_CAP_PROP_BUFFERSIZE, 3);
     double fps = capture.get(CV_CAP_PROP_FPS);
     std::cout << "Fps rate: " << fps << std::endl;
 
@@ -63,21 +63,23 @@ void DronePilot::run() {
     bool lostTracking = false;
     bool isFinished = false;
     int frameCount = 0;
-
+    isFlying = true;
     // Slam thread
     std::thread slamThread([&]() {
         while (true) {
             cv::Mat greyMat, colorMat;
-            capture.grab();
-            capture >> colorMat;
-            if (!colorMat.empty() && isFlying) {
-                slamMatrix = slam.TrackMonocular(colorMat, frameCount / fps);
-                if (slamMatrix.empty()) {
-                    lostTracking = true;
-                } else {
-                    lostTracking = false;
+            if (isFlying) {
+                capture.grab();
+                capture >> colorMat;
+                if(!colorMat.empty()) {
+                    slamMatrix = slam.TrackMonocular(colorMat, frameCount / fps);
+                    if (slamMatrix.empty()) {
+                        lostTracking = true;
+                    } else {
+                        lostTracking = false;
+                    }
+                    frameCount++;
                 }
-                frameCount++;
             }
         }
     });
@@ -93,7 +95,7 @@ void DronePilot::run() {
 //        }
 //    });
 
-    // Drone control thread
+   /* // Drone control thread
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     sendACommand("up 30");
@@ -192,7 +194,9 @@ void DronePilot::run() {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    isFinished = true;
+    isFinished = true;*/
+
+   while(true) {}
 }
 
 double DronePilot::getExitCoordinatesDegree(const Point3D &point) {
