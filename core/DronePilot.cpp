@@ -32,12 +32,17 @@ DronePilot::DronePilot(const std::vector<std::string> &params)
 }
 
 void DronePilot::sendACommand(const std::string &command) {
-    do {
+    bool receievedResponse = false;
+    while (!receievedResponse) {
         tello.SendCommand(command);
-        std::cout << "sent command " << command << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-    } while (!(tello.ReceiveResponse()));
-
+        std::cout << "A command sent " << command << std::endl;
+        for (int i = 0; i < 40 && !receievedResponse; ++i) {
+            if (tello.ReceiveResponse()) {
+                receievedResponse = true;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+    }
     std::cout << "received response " << std::endl;
 }
 
@@ -104,7 +109,7 @@ void DronePilot::run() {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 
-    while(lostTracking){
+    while (lostTracking) {
         std::cout << "Trying to initialize" << std::endl;
         sendACommand("up 30");
         std::this_thread::sleep_for(std::chrono::milliseconds(700));
@@ -126,8 +131,9 @@ void DronePilot::run() {
         }
 
         while (lostTracking) {
+            std::cout << "lost tracking, trying to relocalize." << std::endl;
             int j;
-            for (j = 0; j <i && lostTracking ; ++j) {
+            for (j = 0; j < i && lostTracking; ++j) {
                 sendACommand("cw 20");
                 std::this_thread::sleep_for(std::chrono::milliseconds(700));
                 sendACommand("up 30");
@@ -135,7 +141,10 @@ void DronePilot::run() {
                 sendACommand("down 30");
             }
 
-            sendACommand("ccw " + std::to_string((j + 1) * 20));
+            for (int k = 0; k < j; ++k) {
+                sendACommand("ccw 20");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            }
         }
 
         // Localizing help
@@ -162,22 +171,25 @@ void DronePilot::run() {
     });
 
     // Sleeping till the slam ends mapping
-    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
     std::cout << "calculating exit point" << std::endl;
     auto pointsVector = transformMapFromSlamToRegularPoint(slam);
     exportAllPointsToFile(pointsVector);
     std::cout << "Map Points Saved." << std::endl;
-    auto exitPointt = CoordinatesCalculator::detectExitCoordinateWithSd(numberOfPointsForFiltering, pointsVector, isMulti,
-                                                                 isLoggerOn);
+    auto exitPointt = CoordinatesCalculator::detectExitCoordinateWithSd(numberOfPointsForFiltering,
+                                                                        pointsVector,
+                                                                        isMulti,
+                                                                        isLoggerOn);
+    std::cout << "calculated exit point" << std::endl;
 
     Point3D exitPoint = exitPointt.first;
     isExitPointCalculated = true;
-    
+
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-    double angle = std::floor(getExitCoordinatesDegree(exitPoint));
+    int angle =(int)std::floor(getExitCoordinatesDegree(exitPoint));
 
     std::cout << "flying to x = " << exitPoint.getX() << ", y = " << exitPoint.getY() << ", z = "
               << exitPoint.getZ() << std::endl;
@@ -200,41 +212,35 @@ void DronePilot::run() {
 }
 
 double DronePilot::getExitCoordinatesDegree(const Point3D &point) {
-    if (point.getX() >= 0 && point.getZ() >= 0)
-    {
+    if (point.getX() >= 0 && point.getZ() >= 0) {
         return std::atan(std::abs(point.getX() / point.getZ())) * 180 / 3.14;
-    } else if(point.getX() <= 0 && point.getZ() >= 0)
-    {
+    } else if (point.getX() <= 0 && point.getZ() >= 0) {
         return -std::atan(std::abs(point.getX() / point.getZ())) * 180 / 3.14;
-    }
-    else if (point.getX() <= 0 && point.getZ() <= 0)
-    {
-        return -(90 + std::atan(std::abs(point.getX() / point.getZ())) * 180 / 3.14);
-    }
-    else if (point.getX() >= 0 && point.getZ() <= 0)
-    {
-        return 90 + std::atan(std::abs(point.getX() / point.getZ())) * 180 / 3.14;
-    }
-    else
-    {
+    } else if (point.getX() <= 0 && point.getZ() <= 0) {
+        return -(90 + std::atan(std::abs(point.getZ() / point.getX())) * 180 / 3.14);
+    } else if (point.getX() >= 0 && point.getZ() <= 0) {
+        return 90 + std::atan(std::abs(point.getZ() / point.getX())) * 180 / 3.14;
+    } else {
         exit(-1);
     }
 }
 
-void DronePilot::exportCalculatedResultsToFile(const std::pair<Point3D, Point3D>& exitPointt) {
+void DronePilot::exportCalculatedResultsToFile(const std::pair<Point3D, Point3D> &exitPointt) {
     std::ofstream pointData;
     pointData.open("/tmp/exitPointFile");
-    pointData << "CalculatedExit:\n" << exitPointt.first.getX() << "," << exitPointt.first.getY() << "," << exitPointt.first.getZ() << "\n";
-    pointData << "SD:\n" << exitPointt.second.getX() << "," << exitPointt.second.getY() << "," << exitPointt.second.getZ() << "\n";
+    pointData << "CalculatedExit:\n" << exitPointt.first.getX() << "," << exitPointt.first.getY() << ","
+              << exitPointt.first.getZ() << "\n";
+    pointData << "SD:\n" << exitPointt.second.getX() << "," << exitPointt.second.getY() << ","
+              << exitPointt.second.getZ() << "\n";
 
     pointData.close();
 }
 
-void DronePilot::exportAllPointsToFile(const std::vector<Point3D>& pointsVec){
+void DronePilot::exportAllPointsToFile(const std::vector<Point3D> &pointsVec) {
     std::ofstream pointData;
     pointData.open("/local/rawData.csv");
-    for (const auto& point : pointsVec)
-        pointData <<  point.getX() << "," << point.getY() << "," << point.getZ() << "\n";
+    for (const auto &point: pointsVec)
+        pointData << point.getX() << "," << point.getY() << "," << point.getZ() << "\n";
 
     pointData.close();
 }

@@ -68,7 +68,7 @@ Point3D CoordinatesCalculator::detectExitCoordinate(int numberOfPointsToFilter,
         return detectExitCoordianteSingle(numberOfPointsToFilter, mappedPointsFromSensor, printsEnabled);
 }
 
-std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(int numberOfPointsToFilter,
+std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(const int numberOfPointsToFilter,
                                                                               const std::vector<Point3D> &mappedPointsFromSensor,
                                                                               bool isMulti, const bool printsEnabled) {
 
@@ -109,7 +109,7 @@ std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(in
         numberOfPointsProcessed++;
     }
 
-    Point3D simpleAvg{xSum / numberOfPointsToFilter, ySum / numberOfPointsToFilter, zSum / numberOfPointsToFilter};
+    Point3D simpleAvg{xSum / numberOfPointsProcessed, ySum / numberOfPointsProcessed, zSum / numberOfPointsProcessed};
     // Standard deviation calculation
     double xSD, ySD, zSD = 0;
     numberOfPointsProcessed = 0;
@@ -123,24 +123,29 @@ std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(in
     }
 
     std::vector<Point3D> cleanPoints;
-    Point3D sd{std::sqrt(xSD / numberOfPointsToFilter), std::sqrt(ySD / numberOfPointsToFilter),
-               std::sqrt(zSD / numberOfPointsToFilter)};
-    numberOfPointsProcessed = 0;
-    for (auto iter = multiMap.rbegin();
-         iter != multiMap.rend() && numberOfPointsProcessed < numberOfPointsToFilter;
-         ++iter) {
-        if ((std::sqrt(std::pow(iter->second.getX() - simpleAvg.getX(), 2)) <= sd.getX())
-            && (std::sqrt(std::pow(iter->second.getY() - simpleAvg.getY(), 2)) <= sd.getY())
-            && (std::sqrt(std::pow(iter->second.getZ() - simpleAvg.getZ(), 2)) <= sd.getZ())) {
-            cleanPoints.push_back(iter->second);
+    Point3D sd{std::sqrt(xSD / numberOfPointsProcessed), std::sqrt(ySD / numberOfPointsProcessed),
+               std::sqrt(zSD / numberOfPointsProcessed)};
+
+    // Filter by sd with scaling
+    for (int sdScale = 1; sdScale <= 5 && cleanPoints.size() == 0; ++sdScale) {
+        numberOfPointsProcessed = 0;
+
+        for (auto iter = multiMap.rbegin();
+             iter != multiMap.rend() && numberOfPointsProcessed < numberOfPointsToFilter;
+             ++iter) {
+            if ((std::abs(iter->second.getX() - simpleAvg.getX()) <= sd.getX() * sdScale) &&
+                (std::abs(iter->second.getY() - simpleAvg.getY()) <= sd.getY() * sdScale) &&
+                (std::abs(iter->second.getZ() - simpleAvg.getZ()) <= sd.getZ() * sdScale)) {
+                cleanPoints.push_back(iter->second);
+            }
+            numberOfPointsProcessed++;
         }
-        numberOfPointsProcessed++;
     }
 
     xSum = 0;
     ySum = 0;
     zSum = 0;
-    // Calculating avg after cleanup
+    // Calculating avg after sd filterring
     for (const auto p: cleanPoints) {
         xSum += p.getX();
         ySum += p.getY();
