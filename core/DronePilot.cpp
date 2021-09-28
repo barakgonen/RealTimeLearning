@@ -32,10 +32,12 @@ DronePilot::DronePilot(const std::vector<std::string> &params)
 }
 
 void DronePilot::sendACommand(const std::string &command) {
-    tello.SendCommand(command);
-    std::cout << "sent command " << command << std::endl;
-    while (!(tello.ReceiveResponse())) { ;
-    }
+    do {
+        tello.SendCommand(command);
+        std::cout << "sent command " << command << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+    } while (!(tello.ReceiveResponse()));
+
     std::cout << "received response " << std::endl;
 }
 
@@ -83,23 +85,23 @@ void DronePilot::run() {
     });
 
     // Saving map thread
-//    std::thread t2([&]() {
-//        while (true) {
-//            std::getchar();
-//            std::cout << "EMERGENCYYYY" << std::endl;
-//            sendACommand("land");
-//            sendACommand("emergency");
-//
-//        }
-//    });
+    std::thread t2([&]() {
+        while (true) {
+            std::getchar();
+            std::cout << "EMERGENCYYYY" << std::endl;
+            sendACommand("land");
+            sendACommand("emergency");
+
+        }
+    });
 
     // Drone control thread
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    isFlying = true;
     sendACommand("up 30");
     lostTracking = true;
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    isFlying = true;
 
 
     while(lostTracking){
@@ -116,7 +118,7 @@ void DronePilot::run() {
 
     std::cout << "Orbslam Initialized." << std::endl;
 
-    int deg;
+    int fxDeg;
     // Turn on
     for (int i = 0; i < 12; ++i) {
         if (!slamMatrix.empty()) {
@@ -124,16 +126,18 @@ void DronePilot::run() {
         }
 
         while (lostTracking) {
-            std::cout << "Lost tracking trying to localize" << std::endl;
-            sendACommand("cw 20");
-            std::this_thread::sleep_for(std::chrono::milliseconds(700));
-            sendACommand("up 30");
-            std::this_thread::sleep_for(std::chrono::milliseconds(700));
-            sendACommand("down 30");
-            std::this_thread::sleep_for(std::chrono::milliseconds(700));
-            sendACommand("ccw 20");
-            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            int j;
+            for (j = 0; j <i && lostTracking ; ++j) {
+                sendACommand("cw 20");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+                sendACommand("up 30");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+                sendACommand("down 30");
+            }
+
+            sendACommand("ccw " + std::to_string((j + 1) * 20));
         }
+
         // Localizing help
         sendACommand("up 30");
         std::this_thread::sleep_for(std::chrono::milliseconds(700));
