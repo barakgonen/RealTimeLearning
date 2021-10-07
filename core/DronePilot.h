@@ -29,6 +29,8 @@ private:
     void exportAllPointsToFile(const std::vector<Point3D>& pointsVec);
 
 	std::vector<Point3D> transformMapFromSlamToRegularPoint(ORB_SLAM2::System& slam);
+	void RotateDroneToPoint(const Point3D &exitPoint);
+
 	const std::string telloStreamUrl;
     cv::Mat slamMatrix;
     ctello::Tello tello;
