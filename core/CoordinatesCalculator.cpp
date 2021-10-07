@@ -111,7 +111,10 @@ std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(co
 
     Point3D simpleAvg{xSum / numberOfPointsProcessed, ySum / numberOfPointsProcessed, zSum / numberOfPointsProcessed};
     // Standard deviation calculation
-    double xSD, ySD, zSD = 0;
+    double xSD = 0;
+    double ySD = 0;
+	double zSD = 0;
+
     numberOfPointsProcessed = 0;
     for (auto iter = multiMap.rbegin();
          iter != multiMap.rend() && numberOfPointsProcessed < numberOfPointsToFilter;
@@ -127,14 +130,13 @@ std::pair<Point3D, Point3D> CoordinatesCalculator::detectExitCoordinateWithSd(co
                std::sqrt(zSD / numberOfPointsProcessed)};
 
     // Filter by sd with scaling
-    for (int sdScale = 1; sdScale <= 5 && cleanPoints.size() == 0; ++sdScale) {
+    for (double sdScale = 1.1; sdScale <= 1000 && cleanPoints.empty(); ++sdScale) {
         numberOfPointsProcessed = 0;
-
+        std::cout << "sd scale: " << sdScale << std::endl;
         for (auto iter = multiMap.rbegin();
              iter != multiMap.rend() && numberOfPointsProcessed < numberOfPointsToFilter;
              ++iter) {
             if ((std::abs(iter->second.getX() - simpleAvg.getX()) <= sd.getX() * sdScale) &&
-                (std::abs(iter->second.getY() - simpleAvg.getY()) <= sd.getY() * sdScale) &&
                 (std::abs(iter->second.getZ() - simpleAvg.getZ()) <= sd.getZ() * sdScale)) {
                 cleanPoints.push_back(iter->second);
             }

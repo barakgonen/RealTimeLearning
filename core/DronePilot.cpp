@@ -47,13 +47,19 @@ void DronePilot::sendACommand(const std::string &command) {
 }
 
 Point3D extractDroneLocation(cv::Mat slamMatrix){
-    // Todo: Do the XYZ rotation matrix transformation to X axis angle
-    return Point3D{0,0,0};
+	auto m03 = slamMatrix.at<double>(0, 3);
+	auto m13 = slamMatrix.at<double>(1, 3);
+	auto m23 = slamMatrix.at<double>(2, 3);
+	std::cout<<"The drone location: ("<<m03<<", "<<m13<<", "<<m23<<")"<<std::endl;
+    return Point3D{m03,m13,m23};
 }
 
-double extractDroneXAxisAngle(cv::Mat slamMatrix){
+double extractDroneYAxisAngle(cv::Mat slamMatrix){
     // Todo: Do the XYZ rotation matrix transformation to X axis angle
-    return 0;
+	float m01 = slamMatrix.at<float>(0, 1);
+	float m00 = slamMatrix.at<float>(0, 0);
+	auto angle = std::atan(-m01/m00)*180/3.14;
+	return angle;
 }
 
 double calculateVectorAngle(const Point3D &point) {
@@ -136,9 +142,9 @@ void DronePilot::run() {
     while (lostTracking) {
         std::cout << "Trying to initialize" << std::endl;
         sendACommand("up 30");
-        std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         sendACommand("down 30");
-        std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
         if (!slamMatrix.empty()) {
             std::cout << slamMatrix << std::endl;
@@ -151,7 +157,8 @@ void DronePilot::run() {
     // Turn on
     for (int i = 0; i < 12; ++i) {
         if (!slamMatrix.empty()) {
-            std::cout << slamMatrix << std::endl;
+        	double angle =- extractDroneYAxisAngle(slamMatrix);
+        	std::cout<<"The drone rotation angle: "<<angle<<std::endl;
         }
 
         while (lostTracking) {
@@ -159,14 +166,19 @@ void DronePilot::run() {
             int j;
             for (j = 0; j < i && lostTracking; ++j) {
                 sendACommand("cw 20");
-                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1200));
                 sendACommand("up 30");
                 std::this_thread::sleep_for(std::chrono::milliseconds(700));
                 sendACommand("down 30");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
 
             for (int k = 0; k < j; ++k) {
                 sendACommand("ccw 20");
+                std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+                sendACommand("up 30");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+                sendACommand("down 30");
                 std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
         }
@@ -186,13 +198,13 @@ void DronePilot::run() {
 
     sendACommand("land");
 
-    bool isExitPointCalculated = false;
+/*    bool isExitPointCalculated = false;
     std::thread t([&]() {
         while (!isExitPointCalculated) {
             tello.GetState();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
-    });
+    });*/
 
     // Sleeping till the slam ends mapping
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
@@ -201,7 +213,7 @@ void DronePilot::run() {
     auto pointsVector = transformMapFromSlamToRegularPoint(slam);
     exportAllPointsToFile(pointsVector);
     std::cout << "Map Points Saved." << std::endl;
-    auto exitPointWithsd = CoordinatesCalculator::detectExitCoordinateWithSd(numberOfPointsForFiltering,
+    auto exitPointWithsd = CoordinatesCalculator::detectExitCoordinateWithSd(60,
                                                                         pointsVector,
                                                                         isMulti,
                                                                         isLoggerOn);
@@ -209,31 +221,45 @@ void DronePilot::run() {
 
     Point3D exitPoint = exitPointWithsd.first;
     auto sd = exitPointWithsd.first;
-    isExitPointCalculated = true;
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    sendACommand("up 30");
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     // Initializing to get the drone slam real angle
     while (lostTracking) {
-        std::cout << "Trying to initialize" << std::endl;
-        sendACommand("up 30");
-        std::this_thread::sleep_for(std::chrono::milliseconds(700));
-        sendACommand("down 30");
-        std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        std::cout << "lost tracking, trying to relocalize." << std::endl;
+        int j;
+        for (j = 0; j < 12 && lostTracking; ++j) {
+            sendACommand("up 30");
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            sendACommand("down 30");
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+            sendACommand("cw 20");
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
+        }
 
-        if (!slamMatrix.empty()) {
-            std::cout << slamMatrix << std::endl;
+        for (int k = 0; k < j; ++k) {
+            sendACommand("ccw 20");
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
         }
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
     auto droneLocation = extractDroneLocation(slamMatrix);
 
     auto droneExitVector = Point3D{exitPoint.getX()-droneLocation.getX(),
                                    exitPoint.getY()-droneLocation.getY(),
                                    exitPoint.getZ()-droneLocation.getZ() };
-    int angle =(int)(std::floor(calculateVectorAngle(droneExitVector)) - extractDroneXAxisAngle(slamMatrix));
+    double initialAngle = -extractDroneYAxisAngle(slamMatrix);
+    std::cout << "initial angle is: " << initialAngle << std::endl;
+    int angle =(int)(std::floor(calculateVectorAngle(droneExitVector) - initialAngle));
 
+
+	std::cout<<"The drone rotation angle: "<<angle<<std::endl;
     std::cout << "flying to x = " << exitPoint.getX() << ", y = " << exitPoint.getY() << ", z = "
               << exitPoint.getZ() << std::endl;
     std::cout << "Exit angle: " << angle << std::endl;
@@ -247,7 +273,7 @@ void DronePilot::run() {
     // Time to rotate and fix delay
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
-    double sdScale = 2;
+    double sdScale = 4;
     double deltaX = 0;
     double deltaZ = 0;
     do {
