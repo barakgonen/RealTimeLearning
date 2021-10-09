@@ -153,7 +153,7 @@ void DronePilot::run() {
 
     // Drone control thread
     sendACommand("takeoff");
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     isFlying = true;
     sendACommand("up 30");
     lostTracking = true;
@@ -166,10 +166,6 @@ void DronePilot::run() {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         sendACommand("down 30");
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-        if (!slamMatrix.empty()) {
-            std::cout << slamMatrix << std::endl;
-        }
     }
 
     std::cout << "Orbslam Initialized." << std::endl;
@@ -177,10 +173,6 @@ void DronePilot::run() {
     int fxDeg;
     // Turn on
     for (int i = 0; i < 12; ++i) {
-        if (!slamMatrix.empty()) {
-        	double angle =- extractDroneYAxisAngle(slamMatrix);
-        	std::cout<<"The drone rotation angle: "<<angle<<std::endl;
-        }
 
         while (lostTracking) {
             std::cout << "lost tracking, trying to relocalize." << std::endl;
@@ -242,7 +234,8 @@ void DronePilot::run() {
 
     Point3D exitPoint = exitPointWithsd.first;
     auto sd = exitPointWithsd.first;
-
+    std::cout << "SD is:  x = " << sd.getX() << ", y = "
+    			<< sd.getY() << ", z = " << sd.getZ() << std::endl;
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));
@@ -280,12 +273,11 @@ void DronePilot::run() {
     double deltaZ = 0;
     do {
         std::cout << "Moving forward, you are still far from your exit" << std::endl;
-        sendACommand("forward 40");
+        sendACommand("forward 60");
         std::this_thread::sleep_for(std::chrono::milliseconds(1500));
         auto droneLocation = extractDroneLocation(slamMatrix);
         deltaX = std::abs(exitPoint.getX() - droneLocation.getX());
         deltaZ = std::abs(exitPoint.getZ() - droneLocation.getZ());
-        std::this_thread::sleep_for(std::chrono::milliseconds(1300));
     } while (true);
 
     std::cout << "You have arrived!!," << std::endl;
