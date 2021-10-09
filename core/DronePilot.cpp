@@ -214,7 +214,7 @@ void DronePilot::run() {
         sendACommand("ccw 30");
 
         //Wait
-        std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+        std::this_thread::sleep_for(std::chrono::milliseconds(700));
     }
 
     sendACommand("land");
@@ -286,7 +286,7 @@ void DronePilot::run() {
         deltaX = std::abs(exitPoint.getX() - droneLocation.getX());
         deltaZ = std::abs(exitPoint.getZ() - droneLocation.getZ());
         std::this_thread::sleep_for(std::chrono::milliseconds(1300));
-    } while (!(deltaX <=sd.getX() * sdScale && deltaZ <= sd.getZ() * sdScale));
+    } while (true);
 
     std::cout << "You have arrived!!," << std::endl;
 
