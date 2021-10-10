@@ -171,6 +171,33 @@ core/fast:
 	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/build
 .PHONY : core/fast
 
+AbstractActivityHandler.o: AbstractActivityHandler.cpp.o
+
+.PHONY : AbstractActivityHandler.o
+
+# target to build an object file
+AbstractActivityHandler.cpp.o:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/AbstractActivityHandler.cpp.o
+.PHONY : AbstractActivityHandler.cpp.o
+
+AbstractActivityHandler.i: AbstractActivityHandler.cpp.i
+
+.PHONY : AbstractActivityHandler.i
+
+# target to preprocess a source file
+AbstractActivityHandler.cpp.i:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/AbstractActivityHandler.cpp.i
+.PHONY : AbstractActivityHandler.cpp.i
+
+AbstractActivityHandler.s: AbstractActivityHandler.cpp.s
+
+.PHONY : AbstractActivityHandler.s
+
+# target to generate assembly for a file
+AbstractActivityHandler.cpp.s:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/AbstractActivityHandler.cpp.s
+.PHONY : AbstractActivityHandler.cpp.s
+
 CoordinatesCalculator.o: CoordinatesCalculator.cpp.o
 
 .PHONY : CoordinatesCalculator.o
@@ -197,6 +224,60 @@ CoordinatesCalculator.s: CoordinatesCalculator.cpp.s
 CoordinatesCalculator.cpp.s:
 	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/CoordinatesCalculator.cpp.s
 .PHONY : CoordinatesCalculator.cpp.s
+
+DronePilot.o: DronePilot.cpp.o
+
+.PHONY : DronePilot.o
+
+# target to build an object file
+DronePilot.cpp.o:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/DronePilot.cpp.o
+.PHONY : DronePilot.cpp.o
+
+DronePilot.i: DronePilot.cpp.i
+
+.PHONY : DronePilot.i
+
+# target to preprocess a source file
+DronePilot.cpp.i:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/DronePilot.cpp.i
+.PHONY : DronePilot.cpp.i
+
+DronePilot.s: DronePilot.cpp.s
+
+.PHONY : DronePilot.s
+
+# target to generate assembly for a file
+DronePilot.cpp.s:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/DronePilot.cpp.s
+.PHONY : DronePilot.cpp.s
+
+PerformanceTester.o: PerformanceTester.cpp.o
+
+.PHONY : PerformanceTester.o
+
+# target to build an object file
+PerformanceTester.cpp.o:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/PerformanceTester.cpp.o
+.PHONY : PerformanceTester.cpp.o
+
+PerformanceTester.i: PerformanceTester.cpp.i
+
+.PHONY : PerformanceTester.i
+
+# target to preprocess a source file
+PerformanceTester.cpp.i:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/PerformanceTester.cpp.i
+.PHONY : PerformanceTester.cpp.i
+
+PerformanceTester.s: PerformanceTester.cpp.s
+
+.PHONY : PerformanceTester.s
+
+# target to generate assembly for a file
+PerformanceTester.cpp.s:
+	cd /local/RealTimeLearning && $(MAKE) -f core/CMakeFiles/core.dir/build.make core/CMakeFiles/core.dir/PerformanceTester.cpp.s
+.PHONY : PerformanceTester.cpp.s
 
 Point3D.o: Point3D.cpp.o
 
@@ -238,9 +319,18 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... core"
+	@echo "... AbstractActivityHandler.o"
+	@echo "... AbstractActivityHandler.i"
+	@echo "... AbstractActivityHandler.s"
 	@echo "... CoordinatesCalculator.o"
 	@echo "... CoordinatesCalculator.i"
 	@echo "... CoordinatesCalculator.s"
+	@echo "... DronePilot.o"
+	@echo "... DronePilot.i"
+	@echo "... DronePilot.s"
+	@echo "... PerformanceTester.o"
+	@echo "... PerformanceTester.i"
+	@echo "... PerformanceTester.s"
 	@echo "... Point3D.o"
 	@echo "... Point3D.i"
 	@echo "... Point3D.s"

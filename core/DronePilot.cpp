@@ -147,7 +147,6 @@ void DronePilot::run() {
             std::cout << "EMERGENCYYYY" << std::endl;
             sendACommand("land");
             sendACommand("emergency");
-
         }
     });
 
@@ -172,12 +171,12 @@ void DronePilot::run() {
 
     int fxDeg;
     // Turn on
-    for (int i = 0; i < 12; ++i) {
+    for (int i = 0; i < 12; i++) {
 
         while (lostTracking) {
             std::cout << "lost tracking, trying to relocalize." << std::endl;
             int j;
-            for (j = 0; j < 4 && lostTracking; ++j) {
+            for (j = 0; j < i && lostTracking; j++) {
                 sendACommand("cw 20");
                 std::this_thread::sleep_for(std::chrono::milliseconds(1200));
                 sendACommand("up 30");
@@ -186,13 +185,9 @@ void DronePilot::run() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
 
-            for (int k = 0; k < j; ++k) {
+            for (int k = 0; k < j; k++) {
                 sendACommand("ccw 20");
                 std::this_thread::sleep_for(std::chrono::milliseconds(1200));
-                sendACommand("up 30");
-                std::this_thread::sleep_for(std::chrono::milliseconds(700));
-                sendACommand("down 30");
-                std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
         }
 
