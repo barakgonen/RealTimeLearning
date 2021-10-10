@@ -154,9 +154,7 @@ void DronePilot::run() {
     sendACommand("takeoff");
     std::this_thread::sleep_for(std::chrono::milliseconds(1500));
     isFlying = true;
-    sendACommand("up 30");
     lostTracking = true;
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 
     while (lostTracking) {
@@ -187,7 +185,11 @@ void DronePilot::run() {
 
             for (int k = 0; k < j; k++) {
                 sendACommand("ccw 20");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                sendACommand("up 30");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
+                sendACommand("down 30");
+                std::this_thread::sleep_for(std::chrono::milliseconds(700));
             }
         }
 
@@ -204,18 +206,18 @@ void DronePilot::run() {
         std::this_thread::sleep_for(std::chrono::milliseconds(700));
     }
 
-    sendACommand("land");
+    //sendACommand("land");
 
-/*    bool isExitPointCalculated = false;
+    bool isExitPointCalculated = false;
     std::thread t([&]() {
         while (!isExitPointCalculated) {
             tello.GetState();
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
-    });*/
+    });
 
     // Sleeping till the slam ends mapping
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
     std::cout << "calculating exit point" << std::endl;
     auto pointsVector = transformMapFromSlamToRegularPoint(slam);
@@ -231,11 +233,11 @@ void DronePilot::run() {
     auto sd = exitPointWithsd.first;
     std::cout << "SD is:  x = " << sd.getX() << ", y = "
     			<< sd.getY() << ", z = " << sd.getZ() << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    sendACommand("takeoff");
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-    sendACommand("up 30");
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+//    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+//    sendACommand("takeoff");
+//    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+//    sendACommand("up 30");
+//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     // Initializing to get the drone slam real angle
     while (lostTracking) {
@@ -268,7 +270,7 @@ void DronePilot::run() {
     double deltaZ = 0;
     do {
         std::cout << "Moving forward, you are still far from your exit" << std::endl;
-        sendACommand("forward 60");
+        sendACommand("forward 80");
         std::this_thread::sleep_for(std::chrono::milliseconds(1500));
         auto droneLocation = extractDroneLocation(slamMatrix);
         deltaX = std::abs(exitPoint.getX() - droneLocation.getX());
