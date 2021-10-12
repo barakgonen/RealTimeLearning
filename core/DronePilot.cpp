@@ -27,10 +27,15 @@ using ORB_SLAM2::Map;
 using ORB_SLAM2::MapPoint;
 
 DronePilot::DronePilot(const std::vector<std::string> &params)
-        : AbstractActivityHandler{params}, telloStreamUrl{"udp://0.0.0.0:11111?overrun_nonfatal=1&fifo_size=50000000"},
-          slamMatrix{cv::Mat{}} {
+: AbstractActivityHandler{params}, telloStreamUrl{"udp://0.0.0.0:11111?overrun_nonfatal=1&fifo_size=50000000"}
+, slamMatrix{cv::Mat{}}
+{
 }
 
+/**
+ * Sending a command for tello drone and wating for response, in case response does not
+ * receive during timeout, sending it again
+ */
 void DronePilot::sendACommand(const std::string &command) {
     bool receievedResponse = false;
     while (!receievedResponse) {
@@ -46,7 +51,10 @@ void DronePilot::sendACommand(const std::string &command) {
     std::cout << "received response " << std::endl;
 }
 
-Point3D extractDroneLocation(cv::Mat slamMatrix){
+/**
+ * Matrix to our specific point extractor
+ */
+Point3D DronePilot::extractDroneLocation(cv::Mat slamMatrix){
 	auto m03 = slamMatrix.at<double>(0, 3);
 	auto m13 = slamMatrix.at<double>(1, 3);
 	auto m23 = slamMatrix.at<double>(2, 3);
@@ -54,15 +62,20 @@ Point3D extractDroneLocation(cv::Mat slamMatrix){
     return Point3D{m03,m13,m23};
 }
 
-double extractDroneYAxisAngle(cv::Mat slamMatrix){
-    // Todo: Do the XYZ rotation matrix transformation to X axis angle
+/**
+ * Matrix to axis converter
+ */
+double DronePilot::extractDroneYAxisAngle(cv::Mat slamMatrix){
 	float m01 = slamMatrix.at<float>(0, 1);
 	float m00 = slamMatrix.at<float>(0, 0);
 	auto angle = std::atan2(-m01,m00)*180/3.14;
 	return angle;
 }
 
-double calculateVectorAngle(const Point3D &point) {
+/**
+ * Calculation of movement vector angle by drone position
+ */
+double DronePilot::calculateVectorAngle(const Point3D &point) {
     if (point.getX() >= 0 && point.getZ() >= 0) {
         return std::atan(std::abs(point.getX() / point.getZ())) * 180 / 3.14;
     } else if (point.getX() <= 0 && point.getZ() >= 0) {
@@ -97,6 +110,9 @@ void DronePilot::RotateDroneToPoint(const Point3D &exitPoint) {
 	}
 }
 
+/**
+ * running command for our mechanism, as part of abstract infrastructure
+ */
 void DronePilot::run() {
     if (!tello.Bind()) {
         std::cout << "Failed to connect to drone. exiting app" << std::endl;
@@ -144,7 +160,7 @@ void DronePilot::run() {
     std::thread t2([&]() {
         while (true) {
             std::getchar();
-            std::cout << "EMERGENCYYYY" << std::endl;
+            std::cout << "Performig emergency landing" << std::endl;
             sendACommand("land");
             sendACommand("emergency");
         }
@@ -233,11 +249,6 @@ void DronePilot::run() {
     auto sd = exitPointWithsd.first;
     std::cout << "SD is:  x = " << sd.getX() << ", y = "
     			<< sd.getY() << ", z = " << sd.getZ() << std::endl;
-//    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-//    sendACommand("takeoff");
-//    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-//    sendACommand("up 30");
-//    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     // Initializing to get the drone slam real angle
     while (lostTracking) {

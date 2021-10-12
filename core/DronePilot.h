@@ -31,6 +31,9 @@ private:
 	std::vector<Point3D> transformMapFromSlamToRegularPoint(ORB_SLAM2::System& slam);
 	void RotateDroneToPoint(const Point3D &exitPoint);
 
+	Point3D extractDroneLocation(cv::Mat slamMatrix);
+	double extractDroneYAxisAngle(cv::Mat slamMatrix);
+	double calculateVectorAngle(const Point3D &point);
 	const std::string telloStreamUrl;
     cv::Mat slamMatrix;
     ctello::Tello tello;
